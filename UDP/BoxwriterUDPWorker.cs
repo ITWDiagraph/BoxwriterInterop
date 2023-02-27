@@ -9,7 +9,7 @@ using BoxwriterResmarkInterop.Interfaces;
 
 public class BoxwriterUDPWorker : BoxwriterWorkerBase
 {
-    private const int listenPort = 2202;
+    private const int listenPort = 2200;
     private readonly IUdpDataHandler _handler;
     private readonly ILogger<BoxwriterUDPWorker> _logger;
 

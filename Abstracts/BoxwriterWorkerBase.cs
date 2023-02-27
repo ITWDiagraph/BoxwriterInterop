@@ -22,7 +22,8 @@ public abstract class BoxwriterWorkerBase : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var tasks = new List<Task>();
-        foreach (var ipAddress in await Dns.GetHostAddressesAsync(Dns.GetHostName(),stoppingToken))
+
+        foreach (var ipAddress in await Dns.GetHostAddressesAsync(Dns.GetHostName(), stoppingToken))
         {
             tasks.Add(StartListeningAsync(ipAddress, stoppingToken));
         }

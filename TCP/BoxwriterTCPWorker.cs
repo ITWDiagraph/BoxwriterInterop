@@ -36,12 +36,13 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
 
                 using var client = await server.AcceptTcpClientAsync(stoppingToken);
 
-                _logger.LogTrace("New connection made on {IPAddress} to {ClientAddress}", address,
+                _logger.LogTrace("New connection made to {IPAddress} from {ClientAddress}", address,
                     client.Client.RemoteEndPoint);
 
                 var stream = client.GetStream();
                 var builder = new StringBuilder();
                 var buffer = new byte[256];
+
                 do
                 {
                     var length = await stream.ReadAsync(buffer, 0, buffer.Length, stoppingToken);
@@ -49,7 +50,8 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
                 } while (stream.DataAvailable);
 
                 var data = builder.ToString();
-                _logger.LogInformation("Read data {data} on {IPAddress} from {RemoteAddress}", data, address,
+
+                _logger.LogInformation("Read data {data} to {IPAddress} from {RemoteAddress}", data, address,
                     client.Client.RemoteEndPoint);
 
                 await _handler.ProcessData(data, stream, stoppingToken);
@@ -57,7 +59,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
         }
         catch (SocketException ex)
         {
-            _logger.LogCritical("Socket error occured on {IPAddress} with the following error {Error}", address, ex);
+            _logger.LogCritical("Socket error occurred on {IPAddress}: {Error}", address, ex);
         }
         finally
         {
