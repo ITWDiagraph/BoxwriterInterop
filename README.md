@@ -1,2 +1,2 @@
 # BoxwriterInterop
-A mapping between the boxwritter api and the new opcua api allowing customers to quickly migrate to our new product.
+A mapping between the Boxwriter API and the new OPCUA API allowing customers to quickly migrate to our new product.
