@@ -9,7 +9,7 @@ using BoxwriterResmarkInterop.Interfaces;
 
 public class BoxwriterUDPWorker : BoxwriterWorkerBase
 {
-    private const int listenPort = 2200;
+    private const int Port = 2200;
     private readonly IUdpDataHandler _handler;
     private readonly ILogger<BoxwriterUDPWorker> _logger;
 
@@ -19,9 +19,9 @@ public class BoxwriterUDPWorker : BoxwriterWorkerBase
         _handler = handler;
     }
 
-    protected override async Task StartListeningAsync(IPAddress address, CancellationToken stoppingToken)
+    protected override async Task ListenAsync(IPAddress address, CancellationToken stoppingToken)
     {
-        var listener = new UdpClient(new IPEndPoint(address, listenPort));
+        using var listener = new UdpClient(new IPEndPoint(address, Port));
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -31,7 +31,7 @@ public class BoxwriterUDPWorker : BoxwriterWorkerBase
 
             _logger.Log(LogLevel.Information, "Received UDP packet from {Endpoint}", data.RemoteEndPoint);
 
-            _handler.ProcessData(data, address);
+            await _handler.ProcessDataAsync(data, address);
         }
     }
 }

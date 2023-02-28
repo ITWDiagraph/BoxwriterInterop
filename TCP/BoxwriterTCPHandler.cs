@@ -7,7 +7,7 @@ using Interfaces;
 
 public class BoxwriterTCPHandler : ITCPDataHandler
 {
-    public async Task ProcessData(string data, NetworkStream stream, CancellationToken cancellationToken = default)
+    public async Task ProcessDataAsync(string data, NetworkStream stream, CancellationToken cancellationToken = default)
     {
         var response = Encoding.ASCII.GetBytes(data + " From server");
 

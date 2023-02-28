@@ -4,5 +4,5 @@ using System.Net.Sockets;
 
 public interface ITCPDataHandler
 {
-    Task ProcessData(string data, NetworkStream stream, CancellationToken cancellationToken);
+    Task ProcessDataAsync(string data, NetworkStream stream, CancellationToken cancellationToken);
 }

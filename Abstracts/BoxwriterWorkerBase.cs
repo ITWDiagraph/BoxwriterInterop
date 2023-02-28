@@ -25,11 +25,11 @@ public abstract class BoxwriterWorkerBase : BackgroundService
 
         foreach (var ipAddress in await Dns.GetHostAddressesAsync(Dns.GetHostName(), stoppingToken))
         {
-            tasks.Add(StartListeningAsync(ipAddress, stoppingToken));
+            tasks.Add(ListenAsync(ipAddress, stoppingToken));
         }
 
         await Task.WhenAll(tasks);
     }
 
-    protected abstract Task StartListeningAsync(IPAddress address, CancellationToken stoppingToken);
+    protected abstract Task ListenAsync(IPAddress address, CancellationToken stoppingToken);
 }

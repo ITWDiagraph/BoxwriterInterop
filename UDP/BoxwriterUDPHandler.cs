@@ -15,7 +15,7 @@ public class BoxwriterUDPHandler : IUdpDataHandler
         _logger = logger;
     }
 
-    public void ProcessData(UdpReceiveResult data, IPAddress ipAddress)
+    public async Task ProcessDataAsync(UdpReceiveResult data, IPAddress ipAddress)
     {
         _logger.LogInformation("Udp Handler received data packet {Packet}", data);
 
@@ -27,7 +27,7 @@ public class BoxwriterUDPHandler : IUdpDataHandler
             var response = Encoding.ASCII.GetBytes($"{{Locate BoxWriter, {ipAddress}, 2202, {Dns.GetHostName()}}}");
             var client = new UdpClient();
             client.Connect(data.RemoteEndPoint);
-            client.Send(response);
+            await client.SendAsync(response);
         }
     }
 }

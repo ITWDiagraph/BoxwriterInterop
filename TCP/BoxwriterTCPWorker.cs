@@ -20,7 +20,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
         _handler = handler;
     }
 
-    protected override async Task StartListeningAsync(IPAddress address, CancellationToken stoppingToken)
+    protected override async Task ListenAsync(IPAddress address, CancellationToken stoppingToken)
     {
         TcpListener? server = null;
 
@@ -54,7 +54,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
                 _logger.LogInformation("Read data {data} to {IPAddress} from {RemoteAddress}", data, address,
                     client.Client.RemoteEndPoint);
 
-                await _handler.ProcessData(data, stream, stoppingToken);
+                await _handler.ProcessDataAsync(data, stream, stoppingToken);
             }
         }
         catch (SocketException ex)

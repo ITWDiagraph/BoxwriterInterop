@@ -3,7 +3,7 @@ using BoxwriterResmarkInterop.Interfaces;
 using BoxwriterResmarkInterop.TCP;
 using BoxwriterResmarkInterop.UDP;
 
-IHost host = Host.CreateDefaultBuilder(args)
+Host.CreateDefaultBuilder(args)
     .ConfigureLogging(logger =>
     {
         logger.AddConsole();
@@ -15,6 +15,4 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHostedService<BoxwriterUDPWorker>();
         services.AddHostedService<BoxwriterTCPWorker>();
     })
-    .Build();
-
-host.Run();
+    .Build().Run();
