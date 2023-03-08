@@ -1,5 +1,6 @@
 using BoxwriterResmarkInterop;
 using BoxwriterResmarkInterop.Interfaces;
+using BoxwriterResmarkInterop.OPCUA;
 using BoxwriterResmarkInterop.TCP;
 using BoxwriterResmarkInterop.UDP;
 
@@ -11,8 +12,9 @@ Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddSingleton<IUdpDataHandler, BoxwriterUDPHandler>();
-        services.AddSingleton<ITCPDataHandler, BoxwriterTCPHandler>();
+        services.AddSingleton<IOPCUAService, ResmarkOPCUAService>();
         services.AddHostedService<BoxwriterUDPWorker>();
         services.AddHostedService<BoxwriterTCPWorker>();
+        services.AddMediator();
     })
     .Build().Run();

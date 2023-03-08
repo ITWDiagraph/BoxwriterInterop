@@ -8,16 +8,27 @@ using Abstracts;
 
 using Interfaces;
 
+using Mediator;
+
 public class BoxwriterTCPWorker : BoxwriterWorkerBase
 {
     private const int Port = 2202;
-    private readonly ITCPDataHandler _handler;
     private readonly ILogger<BoxwriterTCPWorker> _logger;
+    private readonly IMediator _mediator;
 
-    public BoxwriterTCPWorker(ILogger<BoxwriterTCPWorker> logger, ITCPDataHandler handler)
+    public BoxwriterTCPWorker(ILogger<BoxwriterTCPWorker> logger, IMediator mediator)
     {
         _logger = logger;
-        _handler = handler;
+        _mediator = mediator;
+    }
+
+    public async Task ProcessDataAsync(string data, NetworkStream stream, CancellationToken cancellationToken = default)
+    {
+        var response = Encoding.ASCII.GetBytes(data);
+
+        await stream.WriteAsync(response, 0, response.Length, cancellationToken);
+
+        await stream.FlushAsync(cancellationToken);
     }
 
     protected override async Task ListenAsync(IPAddress address, CancellationToken stoppingToken)
@@ -54,7 +65,9 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
                 _logger.LogInformation("Read data {data} to {IPAddress} from {RemoteAddress}", data, address,
                     client.Client.RemoteEndPoint);
 
-                await _handler.ProcessDataAsync(data, stream, stoppingToken);
+               var response = await _mediator.Send(new TCPRequest(data), stoppingToken);
+
+               await ProcessDataAsync(response.data, stream, stoppingToken);
             }
         }
         catch (SocketException ex)
