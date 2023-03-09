@@ -18,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="OPCUA\" />
+      <Folder Include="Configuration\" />
+      <Folder Include="Exceptions\" />
     </ItemGroup>
 </Project>

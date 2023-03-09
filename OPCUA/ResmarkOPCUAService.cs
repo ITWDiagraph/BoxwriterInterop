@@ -3,6 +3,10 @@
 using System.Net;
 using System.Threading.Channels;
 
+using Configuration;
+
+using Exceptions;
+
 using Interfaces;
 
 using Workstation.ServiceModel.Ua;
@@ -11,23 +15,29 @@ using Workstation.ServiceModel.Ua.Channels;
 public class ResmarkOPCUAService : IOPCUAService
 {
     private const string ApplicationName = "BoxwriterResmarkInterop";
+    private readonly ApplicationDescription _applicationDescription;
+    private readonly string _hostName;
     private readonly ILogger<ResmarkOPCUAService> _logger;
+
+    private readonly IEnumerable<PrinterConnection> _printerConnections;
 
     private readonly Dictionary<string, UaTcpSessionChannel> ChannelLookup =
         new Dictionary<string, UaTcpSessionChannel>();
 
-    public ResmarkOPCUAService(ILogger<ResmarkOPCUAService> logger)
+    public ResmarkOPCUAService(IEnumerable<PrinterConnection> printerConnections, ILogger<ResmarkOPCUAService> logger)
     {
         _logger = logger;
-    }
+        _hostName = Dns.GetHostName();
 
-    private ApplicationDescription _applicationDescription =>
-        new ApplicationDescription
+        _applicationDescription = new ApplicationDescription
         {
             ApplicationName = ApplicationName,
             ApplicationType = ApplicationType.Client,
-            ApplicationUri = $"urn:{Dns.GetHostName()}:{ApplicationName}"
+            ApplicationUri = $"urn:{_hostName}:{ApplicationName}"
         };
+
+        _printerConnections = printerConnections;
+    }
 
     public async Task<CallMethodResult?[]?> CallMethodAsync(
         string connectionName,
@@ -79,10 +89,12 @@ public class ResmarkOPCUAService : IOPCUAService
         return response.Results;
     }
 
-    //TODO: don't hard code this
-    private string GetAddress(string connectionName)
+    private string GetAddress(string printerId)
     {
-        return "opc.tcp://172.16.11.236:16664";
+        var printer = _printerConnections.FirstOrDefault(p => p.PrinterId == printerId) ??
+                      throw new PrinterNotFoundException();
+
+        return $"opc.tcp://{printer.IpAddress}:16664";
     }
 
     private UaTcpSessionChannel GetSessionChannel(string connectionName)
