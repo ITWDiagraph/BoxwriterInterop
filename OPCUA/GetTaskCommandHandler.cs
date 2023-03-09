@@ -29,7 +29,7 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
 
         var printerId = printerIdRegex.Groups[1].Value;
 
-        var response = await _opcuaService.CallMethodAsync(printerId, "GetStoredMessageList", cancellationToken).ConfigureAwait(false);
+        var response = await _opcuaService.CallMethodAsync(printerId, "GetStoredMessageList", cancellationToken);
 
         if (response is null)
         {

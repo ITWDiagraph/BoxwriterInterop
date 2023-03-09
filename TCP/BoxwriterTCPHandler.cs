@@ -23,7 +23,7 @@ public class BoxwriterTCPHandler : IRequestHandler<TCPRequest, StringResponse>
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        return await _mediator.Send(tcpRequest, cancellationToken);
+        return await _mediator.Send(tcpRequest, cancellationToken).ConfigureAwait(false);
     }
 }
 

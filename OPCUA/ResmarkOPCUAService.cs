@@ -48,10 +48,11 @@ public class ResmarkOPCUAService : IOPCUAService
 
         if (channel.State != CommunicationState.Opened)
         {
+            _logger.LogInformation("Attempting to start OPCUA connection..");
+
             try
             {
-                _logger.LogInformation("Attempting to start OPCUA connection..");
-                await channel.OpenAsync(stoppingToken);
+                await channel.OpenAsync(stoppingToken).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -66,6 +67,8 @@ public class ResmarkOPCUAService : IOPCUAService
             throw new ChannelClosedException();
         }
 
+        _logger.LogInformation("OPCUA connection successful");
+
         var request = new CallMethodRequest
         {
             MethodId = NodeId.Parse($"ns=2;s={method}"),
@@ -75,7 +78,7 @@ public class ResmarkOPCUAService : IOPCUAService
 
         var callRequest = new CallRequest { MethodsToCall = new[] { request } };
 
-        var response = await channel.CallAsync(callRequest, stoppingToken);
+        var response = await channel.CallAsync(callRequest, stoppingToken).ConfigureAwait(false);
 
         var serviceResult = response.ResponseHeader?.ServiceResult;
 
@@ -83,7 +86,7 @@ public class ResmarkOPCUAService : IOPCUAService
         {
             _logger.LogError("OPCUA call failed");
 
-            throw new Exception("OPCUA call failed");
+            throw new OPCUACommunicationFailedException("OPCUA call failed");
         }
 
         return response.Results;
