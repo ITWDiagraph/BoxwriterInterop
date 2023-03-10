@@ -6,8 +6,6 @@ using System.Text;
 
 using Abstracts;
 
-using Interfaces;
-
 using Mediator;
 
 using Requests;
@@ -67,9 +65,9 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
                 _logger.LogInformation("Read data {data} to {IPAddress} from {RemoteAddress}", data, address,
                     client.Client.RemoteEndPoint);
 
-               var response = await _mediator.Send(new TCPRequest(data), stoppingToken).ConfigureAwait(false);
+                var response = await _mediator.Send(new TCPRequest(data), stoppingToken).ConfigureAwait(false);
 
-               await ProcessDataAsync(response.data, stream, stoppingToken).ConfigureAwait(false);
+                await ProcessDataAsync(response.data, stream, stoppingToken).ConfigureAwait(false);
             }
         }
         catch (SocketException ex)

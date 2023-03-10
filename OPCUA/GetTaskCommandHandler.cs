@@ -1,5 +1,6 @@
 ﻿namespace BoxwriterResmarkInterop.OPCUA;
 
+using System.Text;
 using System.Text.RegularExpressions;
 
 using Exceptions;
@@ -10,14 +11,13 @@ using Mediator;
 
 using Requests;
 
-using TCP;
+using Workstation.ServiceModel.Ua;
 
 public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringResponse>
 {
+    private const string GetTaskRegex = @",\s*(.+)\s*}";
     private readonly ILogger<GetTaskCommandHandler> _logger;
     private readonly IOPCUAService _opcuaService;
-    private const string GetTaskRegex = @",\s*(.+)\s*}";
-
 
     public GetTaskCommandHandler(ILogger<GetTaskCommandHandler> logger, IOPCUAService opcuaService)
     {
@@ -40,7 +40,7 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
             throw new OPCUACommunicationFailedException("OPCUA call failed");
         }
 
-        var outputArguments = response.First()?.OutputArguments ?? throw new IndexOutOfRangeException();
+        var outputArguments = response.FirstOrDefault()?.OutputArguments ?? throw new IndexOutOfRangeException();
 
         if (!(outputArguments.Length > 1))
         {
@@ -49,7 +49,30 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
             throw new InvalidDataException("Output argument is not correct length");
         }
 
-        return new StringResponse("{Get tasks, printerId, " + string.Join(',', outputArguments[1].Value as string[] ?? new[] { "No messages" }) + "}");
+        return FormatResponse(outputArguments, printerId);
+    }
+
+    private StringResponse FormatResponse(Variant[] outputArguments, string printerId)
+    {
+        var responseBuilder = new StringBuilder();
+
+        responseBuilder.Append($@"{{Get tasks, {printerId}, ");
+
+        if (outputArguments[1].Value is string[])
+        {
+            foreach (var arg in outputArguments[1].Value as string[])
+            {
+                responseBuilder.Append(arg);
+            }
+        }
+        else
+        {
+            responseBuilder.Append("No messages");
+        }
+
+        responseBuilder.Append("}");
+
+        return new StringResponse(responseBuilder.ToString());
     }
 
     private Match ExtractPrinterId(string data)
