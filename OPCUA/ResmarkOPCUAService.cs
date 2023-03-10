@@ -45,38 +45,22 @@ public class ResmarkOPCUAService : IOPCUAService
         string method,
         CancellationToken stoppingToken)
     {
-        if (printerId != null)
+        if (printerId is null)
         {
             _logger.LogError("Printer Id was not in correct format");
 
             throw new PrinterNotFoundException("Printer Id was not in correct format");
         }
 
-        var channel = GetSessionChannel(printerId);
+        var channel = await OpenChannel(printerId, stoppingToken);
 
-        if (channel.State != CommunicationState.Opened)
-        {
-            _logger.LogInformation("Attempting to start OPCUA connection..");
+        var response = await MakeCallRequest(method, stoppingToken, channel);
 
-            try
-            {
-                await channel.OpenAsync(stoppingToken).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Connection failure", e);
-            }
-        }
+        return response.Results;
+    }
 
-        if (channel.State != CommunicationState.Opened)
-        {
-            _logger.LogError("Channel could not be opened");
-
-            throw new ChannelClosedException();
-        }
-
-        _logger.LogInformation("OPCUA connection successful");
-
+    private async Task<CallResponse> MakeCallRequest(string method, CancellationToken stoppingToken, UaTcpSessionChannel channel)
+    {
         var request = new CallMethodRequest
         {
             MethodId = NodeId.Parse($"ns=2;s={method}"),
@@ -97,7 +81,32 @@ public class ResmarkOPCUAService : IOPCUAService
             throw new OPCUACommunicationFailedException("OPCUA call failed");
         }
 
-        return response.Results;
+        return response;
+    }
+
+    private async Task<UaTcpSessionChannel> OpenChannel(string printerId, CancellationToken stoppingToken)
+    {
+        var channel = GetSessionChannel(printerId);
+
+        if (channel.State != CommunicationState.Opened)
+        {
+            _logger.LogInformation("Attempting to start OPCUA connection..");
+
+            try
+            {
+                await channel.OpenAsync(stoppingToken).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                _logger.LogError("Channel could not be opened");
+
+                throw new OPCUACommunicationFailedException("Channel could not be opened");
+            }
+        }
+
+        _logger.LogInformation("OPCUA connection successful");
+
+        return channel;
     }
 
     private string GetAddress(string printerId)
