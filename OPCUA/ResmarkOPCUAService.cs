@@ -40,7 +40,7 @@ public class ResmarkOPCUAService : IOPCUAService
         configuration.GetSection("PrinterConnections").Bind(_printerConnections);
     }
 
-    public async Task<IEnumerable<CallMethodResult>> CallMethodAsync(
+    public async Task<IEnumerable<CallMethodResult?>> CallMethodAsync(
         string printerId,
         string method,
         CancellationToken stoppingToken)
@@ -56,7 +56,9 @@ public class ResmarkOPCUAService : IOPCUAService
 
         var response = await MakeCallRequest(method, stoppingToken, channel);
 
-        return response.Results;
+        var results = response.Results ?? throw new OPCUACommunicationFailedException("Results of the call was null ");
+
+        return results;
     }
 
     private async Task<CallResponse> MakeCallRequest(string method, CancellationToken stoppingToken, UaTcpSessionChannel channel)

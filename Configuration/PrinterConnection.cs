@@ -2,7 +2,7 @@
 
 public class PrinterConnection
 {
-    public string PrinterId { get; set; }
+    public string? PrinterId { get; set; }
 
-    public string IpAddress { get; set; }
+    public string? IpAddress { get; set; }
 }

@@ -52,22 +52,25 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
         return FormatResponse(outputArguments, printerId);
     }
 
-    private StringResponse FormatResponse(Variant[] outputArguments, string printerId)
+    private StringResponse FormatResponse(Variant[]? outputArguments, string? printerId)
     {
         var responseBuilder = new StringBuilder();
 
         responseBuilder.Append($@"{{Get tasks, {printerId}, ");
 
-        if (outputArguments[1].Value is string[])
+        if (outputArguments != null)
         {
-            foreach (var arg in outputArguments[1].Value as string[])
+            if (outputArguments[1].Value is string[] args)
             {
-                responseBuilder.Append(arg);
+                foreach (var arg in args)
+                {
+                    responseBuilder.Append(arg);
+                }
             }
-        }
-        else
-        {
-            responseBuilder.Append("No messages");
+            else
+            {
+                responseBuilder.Append("No messages");
+            }
         }
 
         responseBuilder.Append("}");
