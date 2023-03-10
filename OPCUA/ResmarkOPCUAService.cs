@@ -40,12 +40,12 @@ public class ResmarkOPCUAService : IOPCUAService
         configuration.GetSection("PrinterConnections").Bind(_printerConnections);
     }
 
-    public async Task<CallMethodResult?[]?> CallMethodAsync(
+    public async Task<IEnumerable<CallMethodResult>> CallMethodAsync(
         string printerId,
         string method,
         CancellationToken stoppingToken)
     {
-        if (printerId.Length != 4)
+        if (printerId != null)
         {
             _logger.LogError("Printer Id was not in correct format");
 
