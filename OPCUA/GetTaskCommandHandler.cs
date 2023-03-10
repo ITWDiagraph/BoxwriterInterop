@@ -27,9 +27,7 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
 
     public async ValueTask<StringResponse> Handle(GetTaskRequest request, CancellationToken cancellationToken)
     {
-        var printerIdRegex = ExtractPrinterId(request.data);
-
-        var printerId = printerIdRegex.Groups[1].Value;
+        var printerId = ExtractPrinterId(request.data);
 
         var response = await _opcuaService.CallMethodAsync(printerId, "GetStoredMessageList", cancellationToken);
 
@@ -78,7 +76,7 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
         return new StringResponse(responseBuilder.ToString());
     }
 
-    private Match ExtractPrinterId(string data)
+    private string ExtractPrinterId(string data)
     {
         var printerIdRegex = new Regex(GetTaskRegex).Match(data);
 
@@ -89,6 +87,6 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
             throw new InvalidDataException($"Unable to find printer ID. Request was {data}.");
         }
 
-        return printerIdRegex;
+        return printerIdRegex.Groups[1].Value;
     }
 }
