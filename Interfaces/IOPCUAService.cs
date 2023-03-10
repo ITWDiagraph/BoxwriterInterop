@@ -4,5 +4,5 @@ using Workstation.ServiceModel.Ua;
 
 public interface IOPCUAService
 {
-    Task<CallMethodResult?[]?> CallMethodAsync(string connectionName, string method, CancellationToken stoppingToken);
+    Task<CallMethodResult?[]?> CallMethodAsync(string printerId, string method, CancellationToken stoppingToken);
 }

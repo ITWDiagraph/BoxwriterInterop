@@ -2,9 +2,7 @@
 
 using Mediator;
 
-public sealed record StringResponse(string data);
-
-public sealed record TCPRequest(string data) : IRequest<StringResponse>;
+using Requests;
 
 public class BoxwriterTCPHandler : IRequestHandler<TCPRequest, StringResponse>
 {
@@ -26,5 +24,3 @@ public class BoxwriterTCPHandler : IRequestHandler<TCPRequest, StringResponse>
         return await _mediator.Send(tcpRequest, cancellationToken).ConfigureAwait(false);
     }
 }
-
-public sealed record GetTaskRequest(string data) : IRequest<StringResponse>;

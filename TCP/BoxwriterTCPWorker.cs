@@ -26,9 +26,9 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
     {
         var response = Encoding.ASCII.GetBytes(data);
 
-        await stream.WriteAsync(response, 0, response.Length, cancellationToken);
+        await stream.WriteAsync(response, 0, response.Length, cancellationToken).ConfigureAwait(false);
 
-        await stream.FlushAsync(cancellationToken);
+        await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
     }
 
     protected override async Task ListenAsync(IPAddress address, CancellationToken stoppingToken)
@@ -65,7 +65,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
                 _logger.LogInformation("Read data {data} to {IPAddress} from {RemoteAddress}", data, address,
                     client.Client.RemoteEndPoint);
 
-               var response = await _mediator.Send(new TCPRequest(data), stoppingToken);
+               var response = await _mediator.Send(new TCPRequest(data), stoppingToken).ConfigureAwait(false);
 
                await ProcessDataAsync(response.data, stream, stoppingToken).ConfigureAwait(false);
             }

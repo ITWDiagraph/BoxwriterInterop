@@ -24,7 +24,7 @@ public class ResmarkOPCUAService : IOPCUAService
     private readonly Dictionary<string, UaTcpSessionChannel> ChannelLookup =
         new Dictionary<string, UaTcpSessionChannel>();
 
-    public ResmarkOPCUAService(IEnumerable<PrinterConnection> printerConnections, ILogger<ResmarkOPCUAService> logger)
+    public ResmarkOPCUAService(IConfiguration configuration, ILogger<ResmarkOPCUAService> logger)
     {
         _logger = logger;
         _hostName = Dns.GetHostName();
@@ -36,15 +36,23 @@ public class ResmarkOPCUAService : IOPCUAService
             ApplicationUri = $"urn:{_hostName}:{ApplicationName}"
         };
 
-        _printerConnections = printerConnections;
+        _printerConnections = new List<PrinterConnection>();
+        configuration.GetSection("PrinterConnections").Bind(_printerConnections);
     }
 
     public async Task<CallMethodResult?[]?> CallMethodAsync(
-        string connectionName,
+        string printerId,
         string method,
         CancellationToken stoppingToken)
     {
-        var channel = GetSessionChannel(connectionName);
+        if (printerId.Length != 4)
+        {
+            _logger.LogError("Printer Id was not in correct format");
+
+            throw new PrinterNotFoundException("Printer Id was not in correct format");
+        }
+
+        var channel = GetSessionChannel(printerId);
 
         if (channel.State != CommunicationState.Opened)
         {
