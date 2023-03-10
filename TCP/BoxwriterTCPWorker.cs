@@ -6,7 +6,7 @@ using System.Text;
 
 using Abstracts;
 
-using Mediator;
+using MediatR;
 
 using Requests;
 

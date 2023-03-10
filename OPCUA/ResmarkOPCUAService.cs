@@ -1,7 +1,6 @@
 ﻿namespace BoxwriterResmarkInterop.OPCUA;
 
 using System.Net;
-using System.Threading.Channels;
 
 using Configuration;
 
@@ -61,7 +60,10 @@ public class ResmarkOPCUAService : IOPCUAService
         return results;
     }
 
-    private async Task<CallResponse> MakeCallRequest(string method, CancellationToken stoppingToken, UaTcpSessionChannel channel)
+    private async Task<CallResponse> MakeCallRequest(
+        string method,
+        CancellationToken stoppingToken,
+        UaTcpSessionChannel channel)
     {
         var request = new CallMethodRequest
         {

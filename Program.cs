@@ -10,5 +10,5 @@ Host.CreateDefaultBuilder(args).ConfigureLogging(logger => { logger.AddConsole()
     services.AddSingleton<IOPCUAService, ResmarkOPCUAService>();
     services.AddHostedService<BoxwriterUDPWorker>();
     services.AddHostedService<BoxwriterTCPWorker>();
-    services.AddMediator();
+    services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 }).Build().Run();

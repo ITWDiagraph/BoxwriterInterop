@@ -1,6 +1,6 @@
 ﻿namespace BoxwriterResmarkInterop.TCP;
 
-using Mediator;
+using MediatR;
 
 using Requests;
 
@@ -13,7 +13,7 @@ public class BoxwriterTCPHandler : IRequestHandler<TCPRequest, StringResponse>
         _mediator = mediator;
     }
 
-    public async ValueTask<StringResponse> Handle(TCPRequest request, CancellationToken cancellationToken)
+    public async Task<StringResponse> Handle(TCPRequest request, CancellationToken cancellationToken)
     {
         var tcpRequest = request.data switch
         {

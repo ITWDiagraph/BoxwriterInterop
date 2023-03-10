@@ -1,6 +1,6 @@
 ﻿namespace BoxwriterResmarkInterop.Requests;
 
-using Mediator;
+using MediatR;
 
 public sealed record StringResponse(string data);
 

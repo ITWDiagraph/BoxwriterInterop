@@ -7,7 +7,7 @@ using Exceptions;
 
 using Interfaces;
 
-using Mediator;
+using MediatR;
 
 using Requests;
 
@@ -25,7 +25,7 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
         _opcuaService = opcuaService;
     }
 
-    public async ValueTask<StringResponse> Handle(GetTaskRequest request, CancellationToken cancellationToken)
+    public async Task<StringResponse> Handle(GetTaskRequest request, CancellationToken cancellationToken)
     {
         var printerId = ExtractPrinterId(request.data);
 

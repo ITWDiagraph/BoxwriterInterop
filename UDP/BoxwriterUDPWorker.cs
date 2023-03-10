@@ -5,7 +5,7 @@ using System.Net.Sockets;
 
 using Abstracts;
 
-using BoxwriterResmarkInterop.Interfaces;
+using Interfaces;
 
 public class BoxwriterUDPWorker : BoxwriterWorkerBase
 {
