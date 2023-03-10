@@ -10,6 +10,8 @@ using Interfaces;
 
 using Mediator;
 
+using Requests;
+
 public class BoxwriterTCPWorker : BoxwriterWorkerBase
 {
     private const int Port = 2202;

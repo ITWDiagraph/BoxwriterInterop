@@ -8,6 +8,8 @@ using Interfaces;
 
 using Mediator;
 
+using Requests;
+
 using TCP;
 
 public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringResponse>
