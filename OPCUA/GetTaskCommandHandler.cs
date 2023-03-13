@@ -1,7 +1,5 @@
 ﻿namespace BoxwriterResmarkInterop.OPCUA;
 
-using System.Text;
-
 using Exceptions;
 
 using Interfaces;
@@ -16,7 +14,6 @@ public class GetTaskCommandHandler : BaseCommandHandler, IRequestHandler<GetTask
 {
     private const int ExpectedOutputArgsLength = 2;
     private const string NoMessages = "NoMessages";
-    private const string GetTasks = "Get tasks";
     private readonly ILogger<GetTaskCommandHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
@@ -27,11 +24,14 @@ public class GetTaskCommandHandler : BaseCommandHandler, IRequestHandler<GetTask
         _opcuaService = opcuaService;
     }
 
+    protected override string CommandName => "Get tasks";
+
     public async Task<StringResponse> Handle(GetTaskRequest request, CancellationToken cancellationToken)
     {
         var printerId = ExtractPrinterId(request.data);
 
-        var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.GetStoredMessageList.ToString(), cancellationToken);
+        var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.GetStoredMessageList.ToString(),
+            cancellationToken);
 
         if (response is null)
         {
@@ -55,30 +55,13 @@ public class GetTaskCommandHandler : BaseCommandHandler, IRequestHandler<GetTask
         return FormatResponse(outputArguments, printerId);
     }
 
-    protected override StringResponse FormatResponse(Variant[]? outputArguments, string? printerId)
+    protected override IEnumerable<string> GetResponseData(Variant[]? outputArguments)
     {
-        var responseData = string.Empty;
-
-        if (outputArguments != null)
+        if (outputArguments?[1].Value is string[] args)
         {
-            if (outputArguments[1].Value is string[] args)
-            {
-                var argsBuilder = new StringBuilder();
-
-                foreach (var arg in args)
-                {
-                    argsBuilder.Append(arg + TokenSeparator);
-                }
-
-                responseData = argsBuilder.ToString();
-            }
-            else
-            {
-                responseData = NoMessages;
-            }
+            return args;
         }
 
-        return new StringResponse(
-            $"{StartToken}{string.Join(TokenSeparator, GetTasks, printerId, responseData)}{EndToken}");
+        return new[] { NoMessages };
     }
 }
