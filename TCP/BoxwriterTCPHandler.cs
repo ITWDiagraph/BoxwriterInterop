@@ -1,18 +1,26 @@
 ﻿namespace BoxwriterResmarkInterop.TCP;
 
-using System.Net.Sockets;
-using System.Text;
+using MediatR;
 
-using Interfaces;
+using Requests;
 
-public class BoxwriterTCPHandler : ITCPDataHandler
+public class BoxwriterTCPHandler : IRequestHandler<TCPRequest, StringResponse>
 {
-    public async Task ProcessDataAsync(string data, NetworkStream stream, CancellationToken cancellationToken = default)
+    private readonly IMediator _mediator;
+
+    public BoxwriterTCPHandler(IMediator mediator)
     {
-        var response = Encoding.ASCII.GetBytes(data + " From server");
+        _mediator = mediator;
+    }
 
-        await stream.WriteAsync(response, 0, response.Length, cancellationToken);
+    public async Task<StringResponse> Handle(TCPRequest request, CancellationToken cancellationToken)
+    {
+        var tcpRequest = request.data switch
+        {
+            var x when x.Contains("Get tasks") => new GetTaskRequest(x),
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
-        await stream.FlushAsync(cancellationToken);
+        return await _mediator.Send(tcpRequest, cancellationToken).ConfigureAwait(false);
     }
 }

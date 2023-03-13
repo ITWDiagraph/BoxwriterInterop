@@ -6,18 +6,29 @@ using System.Text;
 
 using Abstracts;
 
-using Interfaces;
+using MediatR;
+
+using Requests;
 
 public class BoxwriterTCPWorker : BoxwriterWorkerBase
 {
     private const int Port = 2202;
-    private readonly ITCPDataHandler _handler;
     private readonly ILogger<BoxwriterTCPWorker> _logger;
+    private readonly IMediator _mediator;
 
-    public BoxwriterTCPWorker(ILogger<BoxwriterTCPWorker> logger, ITCPDataHandler handler)
+    public BoxwriterTCPWorker(ILogger<BoxwriterTCPWorker> logger, IMediator mediator)
     {
         _logger = logger;
-        _handler = handler;
+        _mediator = mediator;
+    }
+
+    public async Task ProcessDataAsync(string data, NetworkStream stream, CancellationToken cancellationToken = default)
+    {
+        var response = Encoding.ASCII.GetBytes(data);
+
+        await stream.WriteAsync(response, 0, response.Length, cancellationToken).ConfigureAwait(false);
+
+        await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
     }
 
     protected override async Task ListenAsync(IPAddress address, CancellationToken stoppingToken)
@@ -34,7 +45,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
             {
                 _logger.LogTrace("Waiting for connection on {IPAddress}", address);
 
-                using var client = await server.AcceptTcpClientAsync(stoppingToken);
+                using var client = await server.AcceptTcpClientAsync(stoppingToken).ConfigureAwait(false);
 
                 _logger.LogTrace("New connection made to {IPAddress} from {ClientAddress}", address,
                     client.Client.RemoteEndPoint);
@@ -45,7 +56,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
 
                 do
                 {
-                    var length = await stream.ReadAsync(buffer, 0, buffer.Length, stoppingToken);
+                    var length = await stream.ReadAsync(buffer, 0, buffer.Length, stoppingToken).ConfigureAwait(false);
                     builder.Append(Encoding.ASCII.GetString(buffer, 0, length));
                 } while (stream.DataAvailable);
 
@@ -54,7 +65,9 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
                 _logger.LogInformation("Read data {data} to {IPAddress} from {RemoteAddress}", data, address,
                     client.Client.RemoteEndPoint);
 
-                await _handler.ProcessDataAsync(data, stream, stoppingToken);
+                var response = await _mediator.Send(new TCPRequest(data), stoppingToken).ConfigureAwait(false);
+
+                await ProcessDataAsync(response.data, stream, stoppingToken).ConfigureAwait(false);
             }
         }
         catch (SocketException ex)
