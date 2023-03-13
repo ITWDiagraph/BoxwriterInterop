@@ -46,16 +46,16 @@ public class ResmarkOPCUAService : IOPCUAService
     {
         if (printerId is null)
         {
-            _logger.LogError("Printer Id was not in correct format");
+            _logger.LogError("Printer Id was null");
 
-            throw new PrinterNotFoundException("Printer Id was not in correct format");
+            throw new PrinterNotFoundException("Printer Id was null");
         }
 
         var channel = await OpenChannel(printerId, stoppingToken);
 
         var response = await MakeCallRequest(method, stoppingToken, channel);
 
-        var results = response.Results ?? throw new OPCUACommunicationFailedException("Results of the call was null ");
+        var results = response.Results ?? throw new OPCUACommunicationFailedException("Results of the call was null");
 
         return results;
     }
@@ -74,15 +74,17 @@ public class ResmarkOPCUAService : IOPCUAService
 
         var callRequest = new CallRequest { MethodsToCall = new[] { request } };
 
+        _logger.LogInformation("Making {Method} OPCUA call", method);
+
         var response = await channel.CallAsync(callRequest, stoppingToken).ConfigureAwait(false);
 
         var serviceResult = response.ResponseHeader?.ServiceResult;
 
         if (!serviceResult.HasValue || !StatusCode.IsGood(serviceResult.Value))
         {
-            _logger.LogError("OPCUA call failed");
+            _logger.LogError(" {Method} OPCUA call failed", method);
 
-            throw new OPCUACommunicationFailedException("OPCUA call failed");
+            throw new OPCUACommunicationFailedException($"{method} OPCUA call failed");
         }
 
         return response;
@@ -100,11 +102,11 @@ public class ResmarkOPCUAService : IOPCUAService
             {
                 await channel.OpenAsync(stoppingToken).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                _logger.LogError("Channel could not be opened");
+                _logger.LogError("Channel could not be opened: {ex}", ex);
 
-                throw new OPCUACommunicationFailedException("Channel could not be opened");
+                throw new OPCUACommunicationFailedException($"Channel could not be opened: {ex}");
             }
         }
 
@@ -113,10 +115,10 @@ public class ResmarkOPCUAService : IOPCUAService
         return channel;
     }
 
-    private string GetAddress(string printerId)
+    private string GetAddressFromCache(string printerId)
     {
         var printer = _printerConnections.FirstOrDefault(p => p.PrinterId == printerId) ??
-                      throw new PrinterNotFoundException();
+                      throw new PrinterNotFoundException($"Printer Id, {printerId} was not found");
 
         return $"opc.tcp://{printer.IpAddress}:16664";
     }
@@ -126,7 +128,7 @@ public class ResmarkOPCUAService : IOPCUAService
         if (!ChannelLookup.ContainsKey(connectionName))
         {
             ChannelLookup[connectionName] = new UaTcpSessionChannel(_applicationDescription, null,
-                new AnonymousIdentity(), GetAddress(connectionName), SecurityPolicyUris.None);
+                new AnonymousIdentity(), GetAddressFromCache(connectionName), SecurityPolicyUris.None);
         }
 
         return ChannelLookup[connectionName];

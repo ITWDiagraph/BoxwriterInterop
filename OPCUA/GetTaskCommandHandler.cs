@@ -15,7 +15,8 @@ using Workstation.ServiceModel.Ua;
 
 public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringResponse>
 {
-    private const string GetTaskRegex = @",\s*(.+)\s*}";
+    private const string PrinterIdRegex = @",\s*(.+)\s*}";
+    private const int ExpectedOutputArgsLength = 2;
     private readonly ILogger<GetTaskCommandHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
@@ -33,16 +34,18 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
 
         if (response is null)
         {
-            _logger.LogError("OPCUA call failed");
+            _logger.LogError("Get tasks OPCUA call failed");
 
-            throw new OPCUACommunicationFailedException("OPCUA call failed");
+            throw new OPCUACommunicationFailedException("Get tasks OPCUA call failed");
         }
 
-        var outputArguments = response.FirstOrDefault()?.OutputArguments ?? throw new IndexOutOfRangeException();
+        var outputArguments = response.First()?.OutputArguments;
 
-        if (!(outputArguments.Length > 1))
+        var outputArgumentsLength = outputArguments?.Length;
+
+        if (outputArgumentsLength != ExpectedOutputArgsLength)
         {
-            _logger.LogError("Output argument is not correct length");
+            _logger.LogError("Output argument is not correct length. Expected {ExpectedOutputArgsLength}, got {outputArgumentsLength} ", ExpectedOutputArgsLength, outputArgumentsLength);
 
             throw new InvalidDataException("Output argument is not correct length");
         }
@@ -56,7 +59,7 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
 
         responseBuilder.Append($@"{{Get tasks, {printerId}, ");
 
-        if (outputArguments != null)
+        if (outputArguments is not null)
         {
             if (outputArguments[1].Value is string[] args)
             {
@@ -78,7 +81,7 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
 
     private string ExtractPrinterId(string data)
     {
-        var printerIdRegex = new Regex(GetTaskRegex).Match(data);
+        var printerIdRegex = new Regex(PrinterIdRegex).Match(data);
 
         if (!printerIdRegex.Success)
         {
