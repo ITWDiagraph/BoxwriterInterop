@@ -2,6 +2,8 @@
 
 using System.Text.RegularExpressions;
 
+using Exceptions;
+
 using Requests;
 
 using Workstation.ServiceModel.Ua;
@@ -26,6 +28,11 @@ public abstract class BaseCommandHandler
         data = data.Trim(EndToken);
 
         var printerId = data.Split(TokenSeparator)[1];
+
+        if (printerId is null)
+        {
+            throw new PrinterNotFoundException("Could not extract printer ID");
+        }
 
         return printerId;
     }
