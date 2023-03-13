@@ -1,7 +1,6 @@
 ﻿namespace BoxwriterResmarkInterop.OPCUA;
 
 using System.Text;
-using System.Text.RegularExpressions;
 
 using Exceptions;
 
@@ -13,14 +12,16 @@ using Requests;
 
 using Workstation.ServiceModel.Ua;
 
-public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringResponse>
+public class GetTaskCommandHandler : BaseCommandHandler, IRequestHandler<GetTaskRequest, StringResponse>
 {
-    private const string PrinterIdRegex = @",\s*(.+)\s*}";
     private const int ExpectedOutputArgsLength = 2;
+    private const string NoMessages = "NoMessages";
+    private const string GetTasks = "Get tasks";
     private readonly ILogger<GetTaskCommandHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
     public GetTaskCommandHandler(ILogger<GetTaskCommandHandler> logger, IOPCUAService opcuaService)
+        : base(logger)
     {
         _logger = logger;
         _opcuaService = opcuaService;
@@ -30,7 +31,7 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
     {
         var printerId = ExtractPrinterId(request.data);
 
-        var response = await _opcuaService.CallMethodAsync(printerId, "GetStoredMessageList", cancellationToken);
+        var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.GetStoredMessageList.ToString(), cancellationToken);
 
         if (response is null)
         {
@@ -39,13 +40,14 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
             throw new OPCUACommunicationFailedException("Get tasks OPCUA call failed");
         }
 
-        var outputArguments = response.First()?.OutputArguments;
-
+        var outputArguments = response.OutputArguments;
         var outputArgumentsLength = outputArguments?.Length;
 
         if (outputArgumentsLength != ExpectedOutputArgsLength)
         {
-            _logger.LogError("Output argument is not correct length. Expected {ExpectedOutputArgsLength}, got {outputArgumentsLength} ", ExpectedOutputArgsLength, outputArgumentsLength);
+            _logger.LogError(
+                "Output argument is not correct length. Expected {ExpectedOutputArgsLength}, got {outputArgumentsLength}",
+                ExpectedOutputArgsLength, outputArgumentsLength);
 
             throw new InvalidDataException("Output argument is not correct length");
         }
@@ -53,43 +55,30 @@ public class GetTaskCommandHandler : IRequestHandler<GetTaskRequest, StringRespo
         return FormatResponse(outputArguments, printerId);
     }
 
-    private StringResponse FormatResponse(Variant[]? outputArguments, string? printerId)
+    protected override StringResponse FormatResponse(Variant[]? outputArguments, string? printerId)
     {
-        var responseBuilder = new StringBuilder();
+        var responseData = string.Empty;
 
-        responseBuilder.Append($@"{{Get tasks, {printerId}, ");
-
-        if (outputArguments is not null)
+        if (outputArguments != null)
         {
             if (outputArguments[1].Value is string[] args)
             {
+                var argsBuilder = new StringBuilder();
+
                 foreach (var arg in args)
                 {
-                    responseBuilder.Append(arg);
+                    argsBuilder.Append(arg + TokenSeparator);
                 }
+
+                responseData = argsBuilder.ToString();
             }
             else
             {
-                responseBuilder.Append("No messages");
+                responseData = NoMessages;
             }
         }
 
-        responseBuilder.Append("}");
-
-        return new StringResponse(responseBuilder.ToString());
-    }
-
-    private string ExtractPrinterId(string data)
-    {
-        var printerIdRegex = new Regex(PrinterIdRegex).Match(data);
-
-        if (!printerIdRegex.Success)
-        {
-            _logger.LogError("Unable to find printer ID. Request was {Data}", data);
-
-            throw new InvalidDataException($"Unable to find printer ID. Request was {data}.");
-        }
-
-        return printerIdRegex.Groups[1].Value;
+        return new StringResponse(
+            $"{StartToken}{string.Join(TokenSeparator, GetTasks, printerId, responseData)}{EndToken}");
     }
 }
