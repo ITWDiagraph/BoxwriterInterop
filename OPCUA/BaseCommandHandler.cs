@@ -34,7 +34,26 @@ public abstract class BaseCommandHandler
             $"{StartToken}{string.Join(TokenSeparator, data)}{EndToken}");
     }
 
-    protected abstract IEnumerable<string> GetResponseData(Variant[]? outputArguments);
+    protected virtual StringResponse FormatResponse(StatusCode result, string? printerId)
+    {
+        var data = Enumerable.Empty<string>()
+            .Append(CommandName)
+            .Append(printerId)
+            .Append(ParseStatusCode(result).ToString());
+
+        return new StringResponse(
+            $"{StartToken}{string.Join(TokenSeparator, data)}{EndToken}");
+    }
+
+    private static int ParseStatusCode(StatusCode statusCode)
+    {
+        return StatusCode.IsGood(statusCode.Value) ? 1 : 0;
+    }
+
+    protected virtual IEnumerable<string> GetResponseData(Variant[]? outputArguments)
+    {
+        throw new NotImplementedException();
+    }
 
     protected static string ExtractPrinterId(string data)
     {

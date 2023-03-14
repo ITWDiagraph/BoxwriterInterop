@@ -8,11 +8,8 @@ using MediatR;
 
 using Requests;
 
-using Workstation.ServiceModel.Ua;
-
 public class StartTaskCommandHandler : BaseCommandHandler, IRequestHandler<StartTaskRequest, StringResponse>
 {
-    private const int ExpectedOutputArgsLength = 2;
     private readonly ILogger<BaseCommandHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
@@ -40,28 +37,8 @@ public class StartTaskCommandHandler : BaseCommandHandler, IRequestHandler<Start
             throw new OPCUACommunicationFailedException("Start task OPCUA call failed");
         }
 
-        var outputArguments = response.OutputArguments;
-        var outputArgumentsLength = outputArguments?.Length;
+        var result = response.StatusCode;
 
-        if (outputArgumentsLength != ExpectedOutputArgsLength)
-        {
-            _logger.LogError(
-                "Output argument is not correct length. Expected {ExpectedOutputArgsLength}, got {outputArgumentsLength}",
-                ExpectedOutputArgsLength, outputArgumentsLength);
-
-            throw new InvalidDataException("Output argument is not correct length");
-        }
-
-        return FormatResponse(outputArguments, printerId);
-    }
-
-    protected override IEnumerable<string> GetResponseData(Variant[]? outputArguments)
-    {
-        if (outputArguments?[1].Value is string[] args)
-        {
-            return args;
-        }
-
-        return Enumerable.Empty<string>();
+        return FormatResponse(result, printerId);
     }
 }
