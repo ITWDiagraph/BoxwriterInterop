@@ -67,7 +67,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
 
                 var response = await _mediator.Send(new TCPRequest(data), stoppingToken).ConfigureAwait(false);
 
-                await ProcessDataAsync(response.data, stream, stoppingToken).ConfigureAwait(false);
+                await ProcessDataAsync(response.Data, stream, stoppingToken).ConfigureAwait(false);
             }
         }
         catch (SocketException ex)

@@ -2,6 +2,8 @@
 
 using Exceptions;
 
+using Extensions;
+
 using Interfaces;
 
 using MediatR;
@@ -10,7 +12,9 @@ using Requests;
 
 using Workstation.ServiceModel.Ua;
 
-public class GetTaskCommandHandler : BaseCommandHandler, IRequestHandler<GetTasksRequest, StringResponse>
+using static Constants;
+
+public class GetTaskCommandHandler : ICommandHandler, IRequestHandler<GetTasksRequest, StringResponse>
 {
     private const int ExpectedOutputArgsLength = 2;
     private const string NoMessages = "NoMessages";
@@ -18,17 +22,28 @@ public class GetTaskCommandHandler : BaseCommandHandler, IRequestHandler<GetTask
     private readonly IOPCUAService _opcuaService;
 
     public GetTaskCommandHandler(ILogger<GetTaskCommandHandler> logger, IOPCUAService opcuaService)
-        : base(logger)
     {
         _logger = logger;
         _opcuaService = opcuaService;
     }
 
-    protected override string CommandName => "Get tasks";
+    public string CommandName => "Get tasks";
+
+    public string GetResponseData(CallMethodResult result)
+    {
+        var outputArguments = result.OutputArguments;
+
+        if (outputArguments?[1].Value is string[] args)
+        {
+            return args.Aggregate((current, arg) => current + TokenSeparator + arg);
+        }
+
+        return NoMessages;
+    }
 
     public async Task<StringResponse> Handle(GetTasksRequest request, CancellationToken cancellationToken)
     {
-        var printerId = ExtractPrinterId(request.data);
+        var printerId = request.data.ExtractPrinterId();
 
         var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.GetStoredMessageList.ToString(),
             cancellationToken, Array.Empty<Variant>());
@@ -52,16 +67,6 @@ public class GetTaskCommandHandler : BaseCommandHandler, IRequestHandler<GetTask
             throw new InvalidDataException("Output argument is not correct length");
         }
 
-        return FormatResponse(outputArguments, printerId);
-    }
-
-    protected override IEnumerable<string> GetResponseData(Variant[]? outputArguments)
-    {
-        if (outputArguments?[1].Value is string[] args)
-        {
-            return args;
-        }
-
-        return new[] { NoMessages };
+        return new StringResponse(CommandName, printerId, GetResponseData(response));
     }
 }
