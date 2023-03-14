@@ -6,4 +6,6 @@ public sealed record StringResponse(string data);
 
 public sealed record TCPRequest(string data) : IRequest<StringResponse>;
 
-public sealed record GetTaskRequest(string data) : IRequest<StringResponse>;
+public sealed record GetTasksRequest(string data) : IRequest<StringResponse>;
+
+public sealed record StartTaskRequest(string data) : IRequest<StringResponse>;

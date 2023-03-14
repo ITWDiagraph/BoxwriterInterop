@@ -15,12 +15,13 @@ public class BoxwriterTCPHandler : IRequestHandler<TCPRequest, StringResponse>
 
     public async Task<StringResponse> Handle(TCPRequest request, CancellationToken cancellationToken)
     {
-        var tcpRequest = request.data switch
+        object tcpRequest = request.data switch
         {
-            var x when x.Contains("Get tasks") => new GetTaskRequest(x),
+            var x when x.Contains("Get tasks") => new GetTasksRequest(x),
+            var y when y.Contains("Start task") => new StartTaskRequest(y),
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        return await _mediator.Send(tcpRequest, cancellationToken).ConfigureAwait(false);
+        return await _mediator.Send(tcpRequest, cancellationToken).ConfigureAwait(false) as StringResponse;
     }
 }

@@ -42,7 +42,8 @@ public class ResmarkOPCUAService : IOPCUAService
     public async Task<CallMethodResult?> CallMethodAsync(
         string printerId,
         string method,
-        CancellationToken stoppingToken)
+        CancellationToken stoppingToken,
+       string? inputArg = null)
     {
         if (printerId is null)
         {
@@ -53,7 +54,7 @@ public class ResmarkOPCUAService : IOPCUAService
 
         var channel = await OpenChannel(printerId, stoppingToken);
 
-        var response = await MakeCallRequest(method, stoppingToken, channel);
+        var response = await MakeCallRequest(method, inputArg, stoppingToken, channel);
 
         var results = response.Results ?? throw new OPCUACommunicationFailedException("Results of the call was null");
 
@@ -62,6 +63,7 @@ public class ResmarkOPCUAService : IOPCUAService
 
     private async Task<CallResponse> MakeCallRequest(
         string method,
+        string? inputArg,
         CancellationToken stoppingToken,
         UaTcpSessionChannel channel)
     {
@@ -69,7 +71,7 @@ public class ResmarkOPCUAService : IOPCUAService
         {
             MethodId = NodeId.Parse($"ns=2;s={method}"),
             ObjectId = NodeId.Parse(ObjectIds.ObjectsFolder),
-            InputArguments = Array.Empty<Variant>()
+            InputArguments = new[] { new Variant(inputArg) }
         };
 
         var callRequest = new CallRequest { MethodsToCall = new[] { request } };

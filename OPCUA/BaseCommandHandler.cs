@@ -50,4 +50,19 @@ public abstract class BaseCommandHandler
 
         return printerId;
     }
+
+    protected static string ExtractMessageName(string data)
+    {
+        data = data.Trim(StartToken);
+        data = data.Trim(EndToken);
+
+        var messageName = data.Split(TokenSeparator)[2];
+
+        if (messageName is null)
+        {
+            throw new NullReferenceException("Could not extract message name");
+        }
+
+        return messageName;
+    }
 }   

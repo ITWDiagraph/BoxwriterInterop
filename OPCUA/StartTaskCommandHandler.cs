@@ -10,34 +10,34 @@ using Requests;
 
 using Workstation.ServiceModel.Ua;
 
-public class GetTaskCommandHandler : BaseCommandHandler, IRequestHandler<GetTasksRequest, StringResponse>
+public class StartTaskCommandHandler : BaseCommandHandler, IRequestHandler<StartTaskRequest, StringResponse>
 {
     private const int ExpectedOutputArgsLength = 2;
-    private const string NoMessages = "NoMessages";
-    private readonly ILogger<GetTaskCommandHandler> _logger;
+    private readonly ILogger<BaseCommandHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
-    public GetTaskCommandHandler(ILogger<GetTaskCommandHandler> logger, IOPCUAService opcuaService)
+    public StartTaskCommandHandler(ILogger<StartTaskCommandHandler> logger, IOPCUAService opcuaService)
         : base(logger)
     {
         _logger = logger;
         _opcuaService = opcuaService;
     }
 
-    protected override string CommandName => "Get tasks";
+    protected override string CommandName => "Start task";
 
-    public async Task<StringResponse> Handle(GetTasksRequest request, CancellationToken cancellationToken)
+    public async Task<StringResponse> Handle(StartTaskRequest request, CancellationToken cancellationToken)
     {
         var printerId = ExtractPrinterId(request.data);
+        var messageName = ExtractMessageName(request.data);
 
-        var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.GetStoredMessageList.ToString(),
-            cancellationToken);
+        var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.PrintStoredMessage.ToString(),
+            cancellationToken, messageName);
 
         if (response is null)
         {
-            _logger.LogError("Get tasks OPCUA call failed");
+            _logger.LogError("Start task OPCUA call failed");
 
-            throw new OPCUACommunicationFailedException("Get tasks OPCUA call failed");
+            throw new OPCUACommunicationFailedException("Start task OPCUA call failed");
         }
 
         var outputArguments = response.OutputArguments;
@@ -62,6 +62,6 @@ public class GetTaskCommandHandler : BaseCommandHandler, IRequestHandler<GetTask
             return args;
         }
 
-        return new[] { NoMessages };
+        return Enumerable.Empty<string>();
     }
 }
