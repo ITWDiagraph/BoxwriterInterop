@@ -1,6 +1,8 @@
 # BoxwriterInterop
 A mapping between the Boxwriter API and the new OPCUA API allowing customers to quickly migrate to our new product.
 
+[![.NET](https://github.com/ITWDiagraph/BoxwriterInterop/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/ITWDiagraph/BoxwriterInterop/actions/workflows/dotnet.yml)
+
 ### Configuration
 Add printer names and addresses to the appsettings.json file.
 
