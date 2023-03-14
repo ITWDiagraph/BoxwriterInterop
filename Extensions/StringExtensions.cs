@@ -1,7 +1,5 @@
 ﻿namespace BoxwriterResmarkInterop.Extensions;
 
-using Exceptions;
-
 using static Constants;
 
 public static class StringExtensions
@@ -11,8 +9,7 @@ public static class StringExtensions
         data = data.Trim(StartToken);
         data = data.Trim(EndToken);
 
-        var printerId = data.Split(TokenSeparator)[1] ??
-                        throw new PrinterNotFoundException("Could not extract printer ID");
+        var printerId = data.Split(TokenSeparator)[1];
 
         return printerId;
     }
@@ -22,8 +19,7 @@ public static class StringExtensions
         data = data.Trim(StartToken);
         data = data.Trim(EndToken);
 
-        var messageName = data.Split(TokenSeparator)[2] ??
-                          throw new NullReferenceException("Could not extract message name");
+        var messageName = data.Split(TokenSeparator)[2];
 
         return messageName;
     }
