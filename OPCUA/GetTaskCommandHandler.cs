@@ -31,7 +31,7 @@ public class GetTaskCommandHandler : BaseCommandHandler, IRequestHandler<GetTask
         var printerId = ExtractPrinterId(request.data);
 
         var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.GetStoredMessageList.ToString(),
-            cancellationToken);
+            cancellationToken, Array.Empty<Variant>());
 
         if (response is null)
         {

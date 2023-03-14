@@ -7,6 +7,7 @@ using Interfaces;
 using MediatR;
 
 using Requests;
+using Workstation.ServiceModel.Ua;
 
 public class StartTaskCommandHandler : BaseCommandHandler, IRequestHandler<StartTaskRequest, StringResponse>
 {
@@ -27,8 +28,10 @@ public class StartTaskCommandHandler : BaseCommandHandler, IRequestHandler<Start
         var printerId = ExtractPrinterId(request.data);
         var messageName = ExtractMessageName(request.data);
 
+        var inputArgs = new[] { new Variant(messageName)};
+
         var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.PrintStoredMessage.ToString(),
-            cancellationToken, messageName);
+            cancellationToken, inputArgs);
 
         if (response is null)
         {
