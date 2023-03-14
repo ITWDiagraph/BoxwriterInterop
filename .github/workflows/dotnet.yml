@@ -32,4 +32,6 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Application
-        path: bin/Release/net7.0/win-x64/publish/BoxwriterResmarkInterop.exe
+        path: 
+          - bin/Release/net7.0/win-x64/publish/BoxwriterResmarkInterop.exe
+          - bin/Release/net7.0/win-x64/publish/appsettings.json
