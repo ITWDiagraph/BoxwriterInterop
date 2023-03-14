@@ -17,6 +17,5 @@
       <Folder Include="Configuration\" />
       <Folder Include="Exceptions\" />
       <Folder Include="Extensions\" />
-      <Folder Include="Requests\" />
     </ItemGroup>
 </Project>
