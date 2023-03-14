@@ -80,9 +80,9 @@ public class ResmarkOPCUAService : IOPCUAService
 
         var response = await channel.CallAsync(callRequest, stoppingToken).ConfigureAwait(false);
 
-        var serviceResult = response.ResponseHeader?.ServiceResult;
+        var serviceResult = response.ResponseHeader?.ServiceResult ?? StatusCodes.BadCommunicationError;
 
-        if (!serviceResult.HasValue || !StatusCode.IsGood(serviceResult.Value))
+        if (!StatusCode.IsGood(serviceResult))
         {
             _logger.LogError(" {Method} OPCUA call failed", method);
 
