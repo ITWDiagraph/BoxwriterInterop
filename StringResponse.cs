@@ -20,15 +20,4 @@ public class StringResponse
 
         return $"{StartToken}{string.Join(TokenSeparator, data)}{EndToken}";
     }
-
-    //private  StringResponse FormatResponse(StatusCode result, string? printerId)
-    //{
-    //    var data = Enumerable.Empty<string>()
-    //        .Append(CommandName)
-    //        .Append(printerId)
-    //        .Append(ParseStatusCode(result).ToString());
-
-    //    return new StringResponse(
-    //        $"{StartToken}{string.Join(TokenSeparator, data)}{EndToken}");
-    //}
 }
