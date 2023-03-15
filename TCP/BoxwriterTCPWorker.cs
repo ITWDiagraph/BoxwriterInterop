@@ -6,6 +6,8 @@ using System.Text;
 
 using Abstracts;
 
+using Extensions;
+
 using Interfaces;
 
 using MediatR;
@@ -101,13 +103,15 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
 
     private IRequest<StringResponse> CreateRequest(string data)
     {
-        var commandName = data?.Split(TokenSeparator)[0];
+        var commandName = data.ExtractCommandName();
 
         if (!_commandNameRegistrationService.CommandNameRegistry.ContainsKey(commandName))
         {
+            //TODO log here
+
             throw new InvalidOperationException($"Data response was malformed. No command registered for {commandName}");
         }
 
-        return Activator.CreateInstance(_commandNameRegistrationService.CommandNameRegistry[commandName]) as IRequest<StringResponse>;
+        return Activator.CreateInstance(_commandNameRegistrationService.CommandNameRegistry[commandName], data) as IRequest<StringResponse>;
     }
 }

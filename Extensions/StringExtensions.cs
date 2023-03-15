@@ -19,6 +19,11 @@ public static class StringExtensions
         return printerId;
     }
 
+    public static string ExtractCommandName(this string data)
+    {
+        return ExtractInputData(data)[0];
+    }
+
     public static string ExtractMessageName(this string data)
     {
         return ExtractInputData(data)[2];
