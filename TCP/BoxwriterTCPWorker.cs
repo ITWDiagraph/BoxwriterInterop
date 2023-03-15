@@ -14,8 +14,6 @@ using MediatR;
 
 using Requests;
 
-using static Constants;
-
 public class BoxwriterTCPWorker : BoxwriterWorkerBase
 {
     private const int Port = 2202;
