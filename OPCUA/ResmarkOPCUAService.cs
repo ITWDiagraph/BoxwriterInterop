@@ -39,11 +39,11 @@ public class ResmarkOPCUAService : IOPCUAService
         configuration.GetSection("PrinterConnections").Bind(_printerConnections);
     }
 
-    public async Task<CallMethodResult?> CallMethodAsync(
+    private async Task<CallMethodResult?> CallMethodAsync(
         string printerId,
         string method,
         CancellationToken stoppingToken,
-        params string[] inputArgs)
+        Variant[] inputArgs)
     {
         if (printerId is null)
         {
@@ -61,11 +61,29 @@ public class ResmarkOPCUAService : IOPCUAService
         return results.First();
     }
 
+    public async Task<CallMethodResult?> CallMethodAsync(
+        string printerId,
+        string method,
+        CancellationToken stoppingToken,
+        int taskNumber)
+    {
+        return await CallMethodAsync(printerId, method, stoppingToken, new Variant[] { taskNumber });
+    }
+
+    public async Task<CallMethodResult?> CallMethodAsync(
+        string printerId,
+        string method,
+        CancellationToken stoppingToken,
+        string[] inputArgs)
+    {
+        return await CallMethodAsync(printerId, method, stoppingToken, inputArgs.ToVariantArray());
+    }
+
     private async Task<CallResponse> MakeCallRequest(
         string method,
         UaTcpSessionChannel channel,
         CancellationToken stoppingToken,
-        params string[] inputArgs)
+        Variant[] inputArgs)
     {
 
         var request = new CallMethodRequest
