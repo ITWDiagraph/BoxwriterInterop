@@ -6,6 +6,8 @@
 
     using Interfaces;
 
+    using MediatR;
+
     using OPCUA;
 
     using Requests;
@@ -14,7 +16,7 @@
 
     using static Constants;
 
-    public class IdleTaskCommandHandler
+    public class IdleTaskCommandHandler : IRequestHandler<IdleTaskRequest, StringResponse>
     {
         private readonly ILogger<IdleTaskCommandHandler> _logger;
         private readonly IOPCUAService _opcuaService;
