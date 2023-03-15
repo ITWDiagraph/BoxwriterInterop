@@ -14,9 +14,10 @@
 
     using Workstation.ServiceModel.Ua;
 
+    using static Constants;
+
     public class LoadTaskCommandHandler : IRequestHandler<LoadTaskRequest, StringResponse>
     {
-        private const string CommandName = "Load task";
         private readonly ILogger<LoadTaskCommandHandler> _logger;
         private readonly IOPCUAService _opcuaService;
 
@@ -35,12 +36,12 @@
 
             if (response is null)
             {
-                _logger.LogError("Start task OPCUA call failed");
+                _logger.LogError("{LoadTask} OPCUA call failed", LoadTask);
 
-                throw new OPCUACommunicationFailedException("Start task OPCUA call failed");
+                throw new OPCUACommunicationFailedException($"{LoadTask} OPCUA call failed");
             }
 
-            return new StringResponse(CommandName, printerId, GetResponseData(response));
+            return new StringResponse(LoadTask, printerId, GetResponseData(response));
         }
 
         private static bool GetResponseData(CallMethodResult result) => StatusCode.IsGood(result.StatusCode);
