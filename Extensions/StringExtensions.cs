@@ -4,10 +4,7 @@ using static Constants;
 
 public static class StringExtensions
 {
-    public static string ExtractPrinterId(this string data)
-    {
-        return ExtractInputData(data)[1];
-    }
+    public static string ExtractPrinterId(this string data) => ExtractInputData(data)[1];
 
     private static string[] ExtractInputData(string data)
     {
@@ -19,8 +16,7 @@ public static class StringExtensions
         return printerId;
     }
 
-    public static string ExtractMessageName(this string data)
-    {
-        return ExtractInputData(data)[2];
-    }
+    public static string ExtractCommandName(this string data) => ExtractInputData(data)[0];
+
+    public static string ExtractMessageName(this string data) => ExtractInputData(data)[2];
 }
