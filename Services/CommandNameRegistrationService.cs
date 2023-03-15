@@ -17,7 +17,7 @@ public class CommandNameRegistrationService : ICommandNameRegistrationService
 
         foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(IsCommandNameRegistered))
         {
-            var commandName = GetCommandNameAttribute(type).CommandName;
+            var commandName = GetCommandNameAttribute(type)?.CommandName ?? throw new InvalidOperationException($"Type {type} does not have a CommandName attribute");
 
             if (_commandNameRegistry.ContainsKey(commandName))
             {
@@ -38,7 +38,7 @@ public class CommandNameRegistrationService : ICommandNameRegistrationService
         return GetCommandNameAttribute(type) is not null;
     }
 
-    private static CommandNameAttribute GetCommandNameAttribute(Type type) => type.GetCustomAttribute<CommandNameAttribute>();
+    private static CommandNameAttribute? GetCommandNameAttribute(Type type) => type.GetCustomAttribute<CommandNameAttribute>();
 
     public IReadOnlyDictionary<string, Type> CommandNameRegistry => _commandNameRegistry;
 }

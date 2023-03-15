@@ -110,6 +110,9 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
             throw new InvalidOperationException($"Data response was malformed. No command registered for {commandName}");
         }
 
-        return Activator.CreateInstance(_commandNameRegistrationService.CommandNameRegistry[commandName], data) as IRequest<StringResponse>;
+        var type = _commandNameRegistrationService.CommandNameRegistry[commandName];
+
+        return Activator.CreateInstance(type, data) as IRequest<StringResponse> ??
+               throw new InvalidOperationException($"Could not create instance of type {type} as a {typeof(IRequest<StringResponse>)}");
     }
 }
