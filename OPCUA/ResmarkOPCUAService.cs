@@ -39,6 +39,25 @@ public class ResmarkOPCUAService : IOPCUAService
         configuration.GetSection("PrinterConnections").Bind(_printerConnections);
     }
 
+    public async Task<CallMethodResult?> CallMethodAsync(
+        string printerId,
+        string method,
+        CancellationToken stoppingToken,
+        int taskNumber)
+    {
+        return await CallMethodAsync(printerId, method, stoppingToken, new Variant[] { taskNumber })
+            .ConfigureAwait(false);
+    }
+
+    public async Task<CallMethodResult?> CallMethodAsync(
+        string printerId,
+        string method,
+        CancellationToken stoppingToken,
+        string[] inputArgs)
+    {
+        return await CallMethodAsync(printerId, method, stoppingToken, inputArgs.ToVariantArray());
+    }
+
     private async Task<CallMethodResult?> CallMethodAsync(
         string printerId,
         string method,
@@ -52,31 +71,13 @@ public class ResmarkOPCUAService : IOPCUAService
             throw new PrinterNotFoundException("Printer Id was null");
         }
 
-        var channel = await OpenChannel(printerId, stoppingToken);
+        var channel = await OpenChannel(printerId, stoppingToken).ConfigureAwait(false);
 
-        var response = await MakeCallRequest(method, channel, stoppingToken, inputArgs);
+        var response = await MakeCallRequest(method, channel, stoppingToken, inputArgs).ConfigureAwait(false);
 
         var results = response.Results ?? throw new OPCUACommunicationFailedException("Results of the call was null");
 
         return results.First();
-    }
-
-    public async Task<CallMethodResult?> CallMethodAsync(
-        string printerId,
-        string method,
-        CancellationToken stoppingToken,
-        int taskNumber)
-    {
-        return await CallMethodAsync(printerId, method, stoppingToken, new Variant[] { taskNumber });
-    }
-
-    public async Task<CallMethodResult?> CallMethodAsync(
-        string printerId,
-        string method,
-        CancellationToken stoppingToken,
-        string[] inputArgs)
-    {
-        return await CallMethodAsync(printerId, method, stoppingToken, inputArgs.ToVariantArray());
     }
 
     private async Task<CallResponse> MakeCallRequest(
@@ -89,7 +90,7 @@ public class ResmarkOPCUAService : IOPCUAService
         {
             MethodId = NodeId.Parse($"ns=2;s={method}"),
             ObjectId = NodeId.Parse(ObjectIds.ObjectsFolder),
-            InputArguments =  inputArgs
+            InputArguments = inputArgs
         };
 
         var callRequest = new CallRequest { MethodsToCall = new[] { request } };

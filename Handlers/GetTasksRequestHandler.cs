@@ -1,26 +1,23 @@
 namespace BoxwriterResmarkInterop.Handlers;
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 using Exceptions;
 
 using Extensions;
 
 using Interfaces;
 
+using MediatR;
+
 using OPCUA;
 
 using Requests;
 
-using MediatR;
-
 using Workstation.ServiceModel.Ua;
+
+using static Constants;
 
 internal class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringResponse>
 {
-    private const string CommandName = "Get tasks";
     private const int ExpectedOutputArgsLength = 2;
     private readonly ILogger<GetTasksRequestHandler> _logger;
     private readonly IOPCUAService _opcuaService;
@@ -31,15 +28,12 @@ internal class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringR
         _opcuaService = opcuaService;
     }
 
-    private static IEnumerable<string> GetResponseData(CallMethodResult result) =>
-        result.OutputArguments?[1].Value as string[] ?? new [] { Constants.NoMessages };
-
     public async Task<StringResponse> Handle(GetTasksRequest request, CancellationToken cancellationToken)
     {
         var printerId = request.Data.ExtractPrinterId();
 
         var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.GetStoredMessageList.ToString(),
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
 
         if (response?.OutputArguments is null)
         {
@@ -57,6 +51,11 @@ internal class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringR
             throw new InvalidDataException("Output argument is not correct length");
         }
 
-        return new StringResponse(CommandName, printerId, GetResponseData(response));
+        return new StringResponse(GetTasks, printerId, GetResponseData(response));
+    }
+
+    private static IEnumerable<string> GetResponseData(CallMethodResult result)
+    {
+        return result.OutputArguments?[1].Value as string[] ?? new[] { NoMessages };
     }
 }

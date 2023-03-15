@@ -10,6 +10,8 @@ using MediatR;
 
 using Requests;
 
+using static Constants;
+
 public class BoxwriterTCPWorker : BoxwriterWorkerBase
 {
     private const int Port = 2202;
@@ -93,13 +95,15 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
         }
     }
 
-    private static IRequest<StringResponse> CreateRequest(string? data)
+    private static IRequest<StringResponse> CreateRequest(string data)
     {
+        _ = data.Trim(StartToken);
+
         return data switch
         {
-            { } when data.StartsWith("{Get", StringComparison.InvariantCultureIgnoreCase) =>
+            { } when data.Contains(GetTasks, StringComparison.InvariantCultureIgnoreCase) =>
                 new GetTasksRequest(data),
-            { } when data.StartsWith("{Start", StringComparison.InvariantCultureIgnoreCase) =>
+            { } when data.Contains(StartTask, StringComparison.InvariantCultureIgnoreCase) =>
                 new StartTaskRequest(data),
             _ => throw new InvalidOperationException("Data response was malformed.")
         };
