@@ -1,102 +1,101 @@
-﻿namespace BoxwriterResmarkInterop.TCP
+﻿namespace BoxwriterResmarkInterop.TCP;
+
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+
+using Abstracts;
+
+using Extensions;
+
+using MediatR;
+
+using Requests;
+
+using static Constants;
+
+public class BoxwriterTCPWorker : BoxwriterWorkerBase
 {
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Text;
+    private const int Port = 2202;
+    private readonly ILogger<BoxwriterTCPWorker> _logger;
+    private readonly IMediator _mediator;
 
-    using Abstracts;
-
-    using Extensions;
-
-    using MediatR;
-
-    using Requests;
-
-    using static Constants;
-
-    public class BoxwriterTCPWorker : BoxwriterWorkerBase
+    public BoxwriterTCPWorker(ILogger<BoxwriterTCPWorker> logger, IMediator mediator)
     {
-        private const int Port = 2202;
-        private readonly ILogger<BoxwriterTCPWorker> _logger;
-        private readonly IMediator _mediator;
+        _logger = logger;
+        _mediator = mediator;
+    }
 
-        public BoxwriterTCPWorker(ILogger<BoxwriterTCPWorker> logger, IMediator mediator)
+    public async Task ProcessDataAsync(string data, NetworkStream stream, CancellationToken cancellationToken = default)
+    {
+        var response = Encoding.ASCII.GetBytes(data);
+
+        await stream.WriteAsync(response, 0, response.Length, cancellationToken).ConfigureAwait(false);
+
+        await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    protected override async Task ListenAsync(IPAddress address, CancellationToken stoppingToken)
+    {
+        TcpListener? server = null;
+
+        try
         {
-            _logger = logger;
-            _mediator = mediator;
-        }
+            server = new TcpListener(address, Port);
 
-        public async Task ProcessDataAsync(string data, NetworkStream stream, CancellationToken cancellationToken = default)
-        {
-            var response = Encoding.ASCII.GetBytes(data);
+            server.Start();
 
-            await stream.WriteAsync(response, 0, response.Length, cancellationToken).ConfigureAwait(false);
-
-            await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        protected override async Task ListenAsync(IPAddress address, CancellationToken stoppingToken)
-        {
-            TcpListener? server = null;
-
-            try
+            while (!stoppingToken.IsCancellationRequested)
             {
-                server = new TcpListener(address, Port);
+                _logger.LogTrace("Waiting for connection on {IPAddress}", address);
 
-                server.Start();
+                using var client = await server.AcceptTcpClientAsync(stoppingToken).ConfigureAwait(false);
 
-                while (!stoppingToken.IsCancellationRequested)
+                _logger.LogTrace("New connection made to {IPAddress} from {ClientAddress}", address, client.Client.RemoteEndPoint);
+
+                var stream = client.GetStream();
+                var builder = new StringBuilder();
+                var buffer = new byte[256];
+
+                do
                 {
-                    _logger.LogTrace("Waiting for connection on {IPAddress}", address);
+                    var length = await stream.ReadAsync(buffer, 0, buffer.Length, stoppingToken).ConfigureAwait(false);
 
-                    using var client = await server.AcceptTcpClientAsync(stoppingToken).ConfigureAwait(false);
+                    builder.Append(Encoding.ASCII.GetString(buffer, 0, length));
+                } while (stream.DataAvailable);
 
-                    _logger.LogTrace("New connection made to {IPAddress} from {ClientAddress}", address, client.Client.RemoteEndPoint);
+                var data = builder.ToString();
 
-                    var stream = client.GetStream();
-                    var builder = new StringBuilder();
-                    var buffer = new byte[256];
+                _logger.LogInformation("Read data {data} to {IPAddress} from {RemoteAddress}", data, address, client.Client.RemoteEndPoint);
 
-                    do
-                    {
-                        var length = await stream.ReadAsync(buffer, 0, buffer.Length, stoppingToken).ConfigureAwait(false);
+                var request = CreateRequest(data);
 
-                        builder.Append(Encoding.ASCII.GetString(buffer, 0, length));
-                    } while (stream.DataAvailable);
+                var response = await _mediator.Send(request, stoppingToken).ConfigureAwait(false);
 
-                    var data = builder.ToString();
-
-                    _logger.LogInformation("Read data {data} to {IPAddress} from {RemoteAddress}", data, address, client.Client.RemoteEndPoint);
-
-                    var request = CreateRequest(data);
-
-                    var response = await _mediator.Send(request, stoppingToken).ConfigureAwait(false);
-
-                    await ProcessDataAsync(response.Data, stream, stoppingToken).ConfigureAwait(false);
-                }
-            }
-            catch (SocketException ex)
-            {
-                _logger.LogCritical("Socket error occurred on {IPAddress}: {Error}", address, ex);
-            }
-            finally
-            {
-                server?.Stop();
+                await ProcessDataAsync(response.Data, stream, stoppingToken).ConfigureAwait(false);
             }
         }
-
-        private static IRequest<StringResponse> CreateRequest(string data)
+        catch (SocketException ex)
         {
-            var commandName = data.ExtractCommandName();
-
-            return commandName switch
-            {
-                GetTasks => new GetTasksRequest(data),
-                StartTask => new StartTaskRequest(data),
-                LoadTask => new LoadTaskRequest(data),
-
-                _ => throw new InvalidOperationException("Data response was malformed.")
-            };
+            _logger.LogCritical("Socket error occurred on {IPAddress}: {Error}", address, ex);
         }
+        finally
+        {
+            server?.Stop();
+        }
+    }
+
+    private static IRequest<StringResponse> CreateRequest(string data)
+    {
+        var commandName = data.ExtractCommandName();
+
+        return commandName switch
+        {
+            GetTasks => new GetTasksRequest(data),
+            StartTask => new StartTaskRequest(data),
+            LoadTask => new LoadTaskRequest(data),
+
+            _ => throw new InvalidOperationException("Data response was malformed.")
+        };
     }
 }

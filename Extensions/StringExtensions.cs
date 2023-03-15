@@ -1,23 +1,22 @@
-﻿namespace BoxwriterResmarkInterop.Extensions
+﻿namespace BoxwriterResmarkInterop.Extensions;
+
+using static Constants;
+
+public static class StringExtensions
 {
-    using static Constants;
+    public static string ExtractPrinterId(this string data) => ExtractInputData(data)[1];
 
-    public static class StringExtensions
+    private static string[] ExtractInputData(string data)
     {
-        public static string ExtractPrinterId(this string data) => ExtractInputData(data)[1];
+        data = data.Trim(StartToken);
+        data = data.Trim(EndToken);
 
-        private static string[] ExtractInputData(string data)
-        {
-            data = data.Trim(StartToken);
-            data = data.Trim(EndToken);
+        var printerId = data.Split(TokenSeparator);
 
-            var printerId = data.Split(TokenSeparator);
-
-            return printerId;
-        }
-
-        public static string ExtractCommandName(this string data) => ExtractInputData(data)[0];
-
-        public static string ExtractMessageName(this string data) => ExtractInputData(data)[2];
+        return printerId;
     }
+
+    public static string ExtractCommandName(this string data) => ExtractInputData(data)[0];
+
+    public static string ExtractMessageName(this string data) => ExtractInputData(data)[2];
 }
