@@ -105,6 +105,8 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
                 new GetTasksRequest(data),
             { } when data.Contains(StartTask, StringComparison.InvariantCultureIgnoreCase) =>
                 new StartTaskRequest(data),
+            { } when data.Contains(IdleTask, StringComparison.InvariantCultureIgnoreCase) =>
+                new IdleTaskRequest(data),
             _ => throw new InvalidOperationException("Data response was malformed.")
         };
     }
