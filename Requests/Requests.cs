@@ -2,8 +2,6 @@
 
 using MediatR;
 
-public sealed record StringResponse(string data);
+public sealed record GetTasksRequest(string Data) : IRequest<StringResponse>;
 
-public sealed record TCPRequest(string data) : IRequest<StringResponse>;
-
-public sealed record GetTaskRequest(string data) : IRequest<StringResponse>;
+public sealed record StartTaskRequest(string Data) : IRequest<StringResponse>;

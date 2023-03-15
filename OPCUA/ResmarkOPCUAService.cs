@@ -42,7 +42,27 @@ public class ResmarkOPCUAService : IOPCUAService
     public async Task<CallMethodResult?> CallMethodAsync(
         string printerId,
         string method,
-        CancellationToken stoppingToken)
+        CancellationToken stoppingToken,
+        int taskNumber)
+    {
+        return await CallMethodAsync(printerId, method, stoppingToken, new Variant[] { taskNumber })
+            .ConfigureAwait(false);
+    }
+
+    public async Task<CallMethodResult?> CallMethodAsync(
+        string printerId,
+        string method,
+        CancellationToken stoppingToken,
+        string[] inputArgs)
+    {
+        return await CallMethodAsync(printerId, method, stoppingToken, inputArgs.ToVariantArray());
+    }
+
+    private async Task<CallMethodResult?> CallMethodAsync(
+        string printerId,
+        string method,
+        CancellationToken stoppingToken,
+        Variant[] inputArgs)
     {
         if (printerId is null)
         {
@@ -51,9 +71,9 @@ public class ResmarkOPCUAService : IOPCUAService
             throw new PrinterNotFoundException("Printer Id was null");
         }
 
-        var channel = await OpenChannel(printerId, stoppingToken);
+        var channel = await OpenChannel(printerId, stoppingToken).ConfigureAwait(false);
 
-        var response = await MakeCallRequest(method, stoppingToken, channel);
+        var response = await MakeCallRequest(method, channel, stoppingToken, inputArgs).ConfigureAwait(false);
 
         var results = response.Results ?? throw new OPCUACommunicationFailedException("Results of the call was null");
 
@@ -62,14 +82,15 @@ public class ResmarkOPCUAService : IOPCUAService
 
     private async Task<CallResponse> MakeCallRequest(
         string method,
+        UaTcpSessionChannel channel,
         CancellationToken stoppingToken,
-        UaTcpSessionChannel channel)
+        Variant[] inputArgs)
     {
         var request = new CallMethodRequest
         {
             MethodId = NodeId.Parse($"ns=2;s={method}"),
             ObjectId = NodeId.Parse(ObjectIds.ObjectsFolder),
-            InputArguments = Array.Empty<Variant>()
+            InputArguments = inputArgs
         };
 
         var callRequest = new CallRequest { MethodsToCall = new[] { request } };
@@ -78,9 +99,9 @@ public class ResmarkOPCUAService : IOPCUAService
 
         var response = await channel.CallAsync(callRequest, stoppingToken).ConfigureAwait(false);
 
-        var serviceResult = response.ResponseHeader?.ServiceResult;
+        var serviceResult = response.ResponseHeader?.ServiceResult ?? StatusCodes.BadCommunicationError;
 
-        if (!serviceResult.HasValue || !StatusCode.IsGood(serviceResult.Value))
+        if (!StatusCode.IsGood(serviceResult))
         {
             _logger.LogError(" {Method} OPCUA call failed", method);
 
