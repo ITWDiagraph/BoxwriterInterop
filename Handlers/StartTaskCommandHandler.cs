@@ -2,17 +2,15 @@ namespace BoxwriterResmarkInterop.Handlers;
 
 using Exceptions;
 
-using Exceptions;
-
 using Extensions;
 
 using Interfaces;
 
+using MediatR;
+
 using OPCUA;
 
 using Requests;
-
-using MediatR;
 
 using Workstation.ServiceModel.Ua;
 
@@ -27,9 +25,6 @@ public class StartTaskCommandHandler : IRequestHandler<StartTaskRequest, StringR
         _logger = logger;
         _opcuaService = opcuaService;
     }
-
-    private static bool GetResponseData(CallMethodResult result) =>
-        StatusCode.IsGood(result.StatusCode);
 
     public async Task<StringResponse> Handle(StartTaskRequest request, CancellationToken cancellationToken)
     {
@@ -47,5 +42,10 @@ public class StartTaskCommandHandler : IRequestHandler<StartTaskRequest, StringR
         }
 
         return new StringResponse(CommandName, printerId, GetResponseData(response));
+    }
+
+    private static bool GetResponseData(CallMethodResult result)
+    {
+        return StatusCode.IsGood(result.StatusCode);
     }
 }
