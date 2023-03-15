@@ -6,6 +6,8 @@ using System.Text;
 
 using Abstracts;
 
+using Interfaces;
+
 using MediatR;
 
 using Requests;
@@ -17,11 +19,13 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
     private const int Port = 2202;
     private readonly ILogger<BoxwriterTCPWorker> _logger;
     private readonly IMediator _mediator;
+    private readonly ICommandNameRegistrationService _commandNameRegistrationService;
 
-    public BoxwriterTCPWorker(ILogger<BoxwriterTCPWorker> logger, IMediator mediator)
+    public BoxwriterTCPWorker(ILogger<BoxwriterTCPWorker> logger, IMediator mediator, ICommandNameRegistrationService commandNameRegistrationService)
     {
         _logger = logger;
         _mediator = mediator;
+        _commandNameRegistrationService = commandNameRegistrationService;
     }
 
     public async Task ProcessDataAsync(string data, NetworkStream stream, CancellationToken cancellationToken = default)
@@ -95,17 +99,15 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
         }
     }
 
-    private static IRequest<StringResponse> CreateRequest(string data)
+    private IRequest<StringResponse> CreateRequest(string data)
     {
-        _ = data.Trim(StartToken);
+        var commandName = data?.Split(TokenSeparator)[0];
 
-        return data switch
+        if (!_commandNameRegistrationService.CommandNameRegistry.ContainsKey(commandName))
         {
-            { } when data.Contains(GetTasks, StringComparison.InvariantCultureIgnoreCase) =>
-                new GetTasksRequest(data),
-            { } when data.Contains(StartTask, StringComparison.InvariantCultureIgnoreCase) =>
-                new StartTaskRequest(data),
-            _ => throw new InvalidOperationException("Data response was malformed.")
-        };
+            throw new InvalidOperationException($"Data response was malformed. No command registered for {commandName}");
+        }
+
+        return Activator.CreateInstance(_commandNameRegistrationService.CommandNameRegistry[commandName]) as IRequest<StringResponse>;
     }
 }
