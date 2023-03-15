@@ -107,7 +107,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
 
         if (!_commandNameRegistrationService.CommandNameRegistry.ContainsKey(commandName))
         {
-            //TODO log here
+            _logger.LogError("Data response was malformed. No command registered for {CommandName}", commandName);
 
             throw new InvalidOperationException($"Data response was malformed. No command registered for {commandName}");
         }

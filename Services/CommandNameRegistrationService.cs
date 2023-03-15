@@ -21,6 +21,8 @@ public class CommandNameRegistrationService : ICommandNameRegistrationService
 
             if (_commandNameRegistry.ContainsKey(commandName))
             {
+                _logger.LogError("{CommandName} has already been registered to {CommandType}", commandName, _commandNameRegistry[commandName].Name);
+
                 throw new AmbiguousMatchException(
                     $"{commandName} has already been registered to {_commandNameRegistry[commandName]}");
             }
