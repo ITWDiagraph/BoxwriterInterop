@@ -1,4 +1,8 @@
-﻿namespace BoxwriterResmarkInterop.Handlers;
+namespace BoxwriterResmarkInterop.Handlers;
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Exceptions;
 
@@ -6,11 +10,11 @@ using Extensions;
 
 using Interfaces;
 
-using MediatR;
-
 using OPCUA;
 
 using Requests;
+
+using MediatR;
 
 using Workstation.ServiceModel.Ua;
 
@@ -27,6 +31,9 @@ internal class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringR
         _opcuaService = opcuaService;
     }
 
+    private static IEnumerable<string> GetResponseData(CallMethodResult result) =>
+        result.OutputArguments?[1].Value as string[] ?? new [] { Constants.NoMessages };
+
     public async Task<StringResponse> Handle(GetTasksRequest request, CancellationToken cancellationToken)
     {
         var printerId = request.Data.ExtractPrinterId();
@@ -34,7 +41,7 @@ internal class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringR
         var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.GetStoredMessageList.ToString(),
             cancellationToken);
 
-        if (response is null || response.OutputArguments is null)
+        if (response?.OutputArguments is null)
         {
             _logger.LogError("Get tasks OPCUA call failed");
 
@@ -51,12 +58,5 @@ internal class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringR
         }
 
         return new StringResponse(CommandName, printerId, GetResponseData(response));
-    }
-
-    private static string GetResponseData(CallMethodResult result)
-    {
-        return result.OutputArguments?[1].Value is string[] args ?
-            args.Aggregate((current, arg) => current + Constants.TokenSeparator + arg) :
-            Constants.NoMessages;
     }
 }
