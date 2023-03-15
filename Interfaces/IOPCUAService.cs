@@ -7,5 +7,12 @@ public interface IOPCUAService
     Task<CallMethodResult?> CallMethodAsync(
         string printerId,
         string method,
-        CancellationToken stoppingToken);
+        CancellationToken stoppingToken,
+        params string[] inputArgs);
+
+    Task<CallMethodResult?> CallMethodAsync(
+        string printerId,
+        string method,
+        CancellationToken stoppingToken,
+        int taskNumber);
 }
