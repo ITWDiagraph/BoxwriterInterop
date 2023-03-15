@@ -85,18 +85,12 @@ public class ResmarkOPCUAService : IOPCUAService
         CancellationToken stoppingToken,
         Variant[] inputArgs)
     {
-
         var request = new CallMethodRequest
         {
             MethodId = NodeId.Parse($"ns=2;s={method}"),
             ObjectId = NodeId.Parse(ObjectIds.ObjectsFolder),
-            InputArguments =  Array.Empty<Variant>()
+            InputArguments =  inputArgs
         };
-
-        foreach (var arg in inputArgs)
-        {
-            _ = request.InputArguments.Append(new Variant(arg));
-        }
 
         var callRequest = new CallRequest { MethodsToCall = new[] { request } };
 

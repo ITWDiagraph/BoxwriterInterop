@@ -17,6 +17,7 @@ using Workstation.ServiceModel.Ua;
 public class StartTaskCommandHandler : IRequestHandler<StartTaskRequest, StringResponse>
 {
     private const string CommandName = "Start task";
+    private const int TaskNumber = 1;
     private readonly ILogger<StartTaskCommandHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
@@ -29,10 +30,9 @@ public class StartTaskCommandHandler : IRequestHandler<StartTaskRequest, StringR
     public async Task<StringResponse> Handle(StartTaskRequest request, CancellationToken cancellationToken)
     {
         var printerId = request.Data.ExtractPrinterId();
-        var messageName = request.Data.ExtractMessageName();
 
-        var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.PrintStoredMessage.ToString(),
-            cancellationToken, messageName);
+        var response =
+            await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.ResumePrinting.ToString(), cancellationToken, TaskNumber);
 
         if (response is null)
         {
