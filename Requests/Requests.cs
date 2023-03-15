@@ -1,4 +1,4 @@
-﻿namespace BoxwriterResmarkInterop.Requests;
+namespace BoxwriterResmarkInterop.Requests;
 
 using MediatR;
 

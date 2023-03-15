@@ -1,4 +1,4 @@
-﻿namespace BoxwriterResmarkInterop;
+namespace BoxwriterResmarkInterop;
 
 public class Constants
 {

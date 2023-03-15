@@ -1,4 +1,4 @@
-﻿namespace BoxwriterResmarkInterop.TCP;
+namespace BoxwriterResmarkInterop.TCP;
 
 using System.Net;
 using System.Net.Sockets;
