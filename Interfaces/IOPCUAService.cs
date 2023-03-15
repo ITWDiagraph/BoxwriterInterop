@@ -8,5 +8,6 @@ public interface IOPCUAService
         string printerId,
         string method,
         CancellationToken stoppingToken,
-        Variant[] inputArgs);
+        params string[] inputArgs);
+
 }

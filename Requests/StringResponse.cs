@@ -11,13 +11,8 @@ public class StringResponse
 
     public string Data { get; set; }
 
-    private string FormatResponse(string commandName, string? printerId, string responseData)
+    private static string FormatResponse(string commandName, string printerId, string responseData)
     {
-        var data = Enumerable.Empty<string>()
-            .Append(commandName)
-            .Append(printerId)
-            .Append(responseData);
-
-        return $"{StartToken}{string.Join(TokenSeparator, data)}{EndToken}";
+        return $"{StartToken}{string.Join(TokenSeparator, commandName, printerId, responseData)}{EndToken}";
     }
 }

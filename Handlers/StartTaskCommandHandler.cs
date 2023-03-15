@@ -1,13 +1,17 @@
 ﻿namespace BoxwriterResmarkInterop.Handlers;
 
-using System.Threading.Tasks;
+using Exceptions;
 
-using BoxwriterResmarkInterop.Exceptions;
-using BoxwriterResmarkInterop.Extensions;
-using BoxwriterResmarkInterop.Interfaces;
-using BoxwriterResmarkInterop.OPCUA;
-using BoxwriterResmarkInterop.Requests;
+using Extensions;
+
+using Interfaces;
+
 using MediatR;
+
+using OPCUA;
+
+using Requests;
+
 using Workstation.ServiceModel.Ua;
 
 public class StartTaskCommandHandler : IRequestHandler<StartTaskRequest, StringResponse>
@@ -22,18 +26,13 @@ public class StartTaskCommandHandler : IRequestHandler<StartTaskRequest, StringR
         _opcuaService = opcuaService;
     }
 
-    private static string GetResponseData(CallMethodResult result) =>
-        StatusCode.IsGood(result.StatusCode) ? "1" : "0";
-
     public async Task<StringResponse> Handle(StartTaskRequest request, CancellationToken cancellationToken)
     {
         var printerId = request.Data.ExtractPrinterId();
         var messageName = request.Data.ExtractMessageName();
 
-        var inputArgs = new[] { new Variant(messageName) };
-
         var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.PrintStoredMessage.ToString(),
-            cancellationToken, inputArgs);
+            cancellationToken, messageName);
 
         if (response is null)
         {
@@ -43,5 +42,10 @@ public class StartTaskCommandHandler : IRequestHandler<StartTaskRequest, StringR
         }
 
         return new StringResponse(CommandName, printerId, GetResponseData(response));
+    }
+
+    private static string GetResponseData(CallMethodResult result)
+    {
+        return StatusCode.IsGood(result.StatusCode) ? "1" : "0";
     }
 }
