@@ -1,9 +1,10 @@
-﻿namespace BoxwriterResmarkInterop.OPCUA;
+namespace BoxwriterResmarkInterop.OPCUA;
 
 public enum OPCUAMethods
 {
     GetStoredMessageList,
     ResumePrinting,
     StopPrinting,
-    PrintStoredMessage
+    PrintStoredMessage,
+    GetMessageVariableData
 }
