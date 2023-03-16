@@ -18,12 +18,10 @@ using static Constants;
 
 public class IdleTaskCommandHandler : IRequestHandler<IdleTaskRequest, StringResponse>
 {
-    private readonly ILogger<IdleTaskCommandHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
-    public IdleTaskCommandHandler(ILogger<IdleTaskCommandHandler> logger, IOPCUAService opcuaService)
+    public IdleTaskCommandHandler(IOPCUAService opcuaService)
     {
-        _logger = logger;
         _opcuaService = opcuaService;
     }
 
@@ -33,11 +31,6 @@ public class IdleTaskCommandHandler : IRequestHandler<IdleTaskRequest, StringRes
 
         var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.StopPrinting.ToString(), cancellationToken, TaskNumber)
             .ConfigureAwait(false);
-
-        if (response is null)
-        {
-            throw new OPCUACommunicationFailedException($"{IdleTask} OPCUA call failed");
-        }
 
         return new StringResponse(IdleTask, printerId, GetResponseData(response));
     }

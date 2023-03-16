@@ -51,13 +51,13 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
                 {
                     _logger.LogTrace("Waiting for connection on {IPAddress}", address);
 
-                    using var client = await server
+                    using var tcpClient = await server
                         .AcceptTcpClientAsync(stoppingToken)
                         .ConfigureAwait(false);
 
-                    _logger.LogTrace("New connection made to {IPAddress} from {ClientAddress}", address, client.Client.RemoteEndPoint);
+                    _logger.LogTrace("New connection made to {IPAddress} from {ClientAddress}", address, tcpClient.Client.RemoteEndPoint);
 
-                    var stream = client.GetStream();
+                    var stream = tcpClient.GetStream();
                     var builder = new StringBuilder();
                     var buffer = new byte[256];
 
@@ -74,7 +74,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
                     var data = builder.ToString();
 
                     _logger.LogInformation("Read data {data} to {IPAddress} from {RemoteAddress}", data, address,
-                        client.Client.RemoteEndPoint);
+                        tcpClient.Client.RemoteEndPoint);
 
                     var request = CreateRequest(data);
 
@@ -112,7 +112,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
             LoadTask => new LoadTaskRequest(data),
             IdleTask => new IdleTaskRequest(data),
             GetUserElements => new GetUserElementsRequest(data),
-            _ => throw new InvalidOperationException("Data response was malformed.")
+            _ => throw new InvalidDataException("Data response was malformed.")
         };
     }
 }

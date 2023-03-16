@@ -67,8 +67,6 @@ public class ResmarkOPCUAService : IOPCUAService
     {
         if (printerId is null)
         {
-            _logger.LogError("Printer Id was null");
-
             throw new PrinterNotFoundException("Printer Id was null");
         }
 
@@ -82,11 +80,6 @@ public class ResmarkOPCUAService : IOPCUAService
 
         if (callMethodResult is null || !StatusCode.IsGood(callMethodResult.StatusCode))
         {
-            _logger.LogError("{Method} OPCUA call failed to get a valid response: {Error} {Code}",
-                method,
-                GetStatusCodeMessage(),
-                callMethodResult?.StatusCode);
-
             throw new OPCUACommunicationFailedException(
                 $"{method} OPCUA call failed to get a valid response: {GetStatusCodeMessage()} {callMethodResult?.StatusCode}");
         }
@@ -119,8 +112,6 @@ public class ResmarkOPCUAService : IOPCUAService
 
         if (!StatusCode.IsGood(serviceResult))
         {
-            _logger.LogError("{Method} OPCUA call failed", method);
-
             throw new OPCUACommunicationFailedException($"{method} OPCUA call failed");
         }
 
@@ -141,8 +132,6 @@ public class ResmarkOPCUAService : IOPCUAService
             }
             catch (Exception ex)
             {
-                _logger.LogError("Channel could not be opened: {ex}", ex);
-
                 throw new OPCUACommunicationFailedException($"Channel could not be opened: {ex}");
             }
         }
