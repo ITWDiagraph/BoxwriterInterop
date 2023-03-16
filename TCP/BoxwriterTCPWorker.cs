@@ -1,4 +1,4 @@
-﻿namespace BoxwriterResmarkInterop.TCP;
+namespace BoxwriterResmarkInterop.TCP;
 
 using System.Net;
 using System.Net.Sockets;
@@ -94,6 +94,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
             GetTasks => new GetTasksRequest(data),
             StartTask => new StartTaskRequest(data),
             LoadTask => new LoadTaskRequest(data),
+            IdleTask => new IdleTaskRequest(data),
 
             _ => throw new InvalidOperationException("Data response was malformed.")
         };
