@@ -4,5 +4,6 @@ public enum OPCUAMethods
 {
     GetStoredMessageList,
     ResumePrinting,
-    PrintStoredMessage
+    PrintStoredMessage,
+    GetLines
 }

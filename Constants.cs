@@ -6,8 +6,10 @@ public class Constants
     public const char EndToken = '}';
     public const string TokenSeparator = ", ";
     public const string NoMessages = "NoMessages";
+    public const string NoLines = "NoLines";
     public const int TaskNumber = 1;
     public const string GetTasks = "Get tasks";
     public const string StartTask = "Start task";
     public const string LoadTask = "Load task";
+    public const string GetLines = "Get lines";
 }
