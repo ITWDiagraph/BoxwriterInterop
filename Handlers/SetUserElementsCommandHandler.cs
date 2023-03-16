@@ -16,14 +16,12 @@ using static Constants;
 
 using MoreLinq;
 
-internal class SetUserElementsRequestHandler : IRequestHandler<SetUserElementsRequest, StringResponse>
+internal class SetUserElementsCommandHandler : IRequestHandler<SetUserElementsRequest, StringResponse>
 {
-    private readonly ILogger<GetTasksRequestHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
-    public SetUserElementsRequestHandler(IOPCUAService opcuaService, ILogger<GetTasksRequestHandler> logger)
+    public SetUserElementsCommandHandler(IOPCUAService opcuaService)
     {
-        _logger = logger;
         _opcuaService = opcuaService;
     }
 
