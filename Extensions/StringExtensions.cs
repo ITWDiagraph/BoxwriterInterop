@@ -10,5 +10,5 @@ public static class StringExtensions
 
     public static string ExtractCommandName(this string data) => ExtractInputData(data)[0];
 
-    public static string ExtractMessageName(this string data) => ExtractInputData(data)[2];
+    public static string ExtractAdditionalParameter(this string data) => ExtractInputData(data)[2];
 }
