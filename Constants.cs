@@ -11,4 +11,5 @@ public class Constants
     public const string StartTask = "Start task";
     public const string LoadTask = "Load task";
     public const string IdleTask = "Idle task";
+    public const string ResumeTask = "Resume task";
 }

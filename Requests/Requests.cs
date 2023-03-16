@@ -9,3 +9,5 @@ public sealed record StartTaskRequest(string Data) : IRequest<StringResponse>;
 public sealed record LoadTaskRequest(string Data) : IRequest<StringResponse>;
 
 public sealed record IdleTaskRequest(string Data) : IRequest<StringResponse>;
+
+public sealed record ResumeTaskRequest(string Data) : IRequest<StringResponse>;
