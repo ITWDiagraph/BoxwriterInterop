@@ -14,7 +14,7 @@ using Workstation.ServiceModel.Ua;
 
 using static Constants;
 
-internal class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringResponse>
+public class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringResponse>
 {
     private readonly IOPCUAService _opcuaService;
 

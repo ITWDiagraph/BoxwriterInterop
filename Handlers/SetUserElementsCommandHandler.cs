@@ -16,7 +16,7 @@ using static Constants;
 
 using MoreLinq;
 
-internal class SetUserElementsCommandHandler : IRequestHandler<SetUserElementsRequest, StringResponse>
+public class SetUserElementsCommandHandler : IRequestHandler<SetUserElementsRequest, StringResponse>
 {
     private readonly IOPCUAService _opcuaService;
 
