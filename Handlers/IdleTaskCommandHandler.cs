@@ -36,8 +36,6 @@
 
             if (response is null)
             {
-                _logger.LogError("{IdleTask} OPCUA call failed", IdleTask);
-
                 throw new OPCUACommunicationFailedException($"{IdleTask} OPCUA call failed");
             }
 
