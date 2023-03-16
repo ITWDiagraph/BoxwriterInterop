@@ -59,6 +59,17 @@ public class ResmarkOPCUAService : IOPCUAService
             .ConfigureAwait(false);
     }
 
+    public async Task<CallMethodResult> CallMethodAsync(
+        string printerId,
+        string method,
+        CancellationToken stoppingToken,
+        int taskNumber,
+        string inputArgs)
+    {
+        return await CallMethodAsync(printerId, method, stoppingToken, new Variant[] { taskNumber, inputArgs })
+            .ConfigureAwait(false);
+    }
+
     private async Task<CallMethodResult> CallMethodAsync(
         string printerId,
         string method,
