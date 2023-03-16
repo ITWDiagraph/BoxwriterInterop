@@ -1,7 +1,5 @@
 namespace BoxwriterResmarkInterop.Handlers;
 
-using Exceptions;
-
 using Extensions;
 
 using Interfaces;
@@ -18,13 +16,10 @@ using static Constants;
 
 internal class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringResponse>
 {
-    private const int ExpectedOutputArgsLength = 2;
-    private readonly ILogger<GetTasksRequestHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
-    public GetTasksRequestHandler(IOPCUAService opcuaService, ILogger<GetTasksRequestHandler> logger)
+    public GetTasksRequestHandler(IOPCUAService opcuaService)
     {
-        _logger = logger;
         _opcuaService = opcuaService;
     }
 
@@ -34,22 +29,6 @@ internal class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringR
 
         var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.GetStoredMessageList.ToString(),
             cancellationToken).ConfigureAwait(false);
-
-        if (response?.OutputArguments is null)
-        {
-            _logger.LogError("Get tasks OPCUA call failed");
-
-            throw new OPCUACommunicationFailedException("Get tasks OPCUA call failed");
-        }
-
-        if (response.OutputArguments.Length != ExpectedOutputArgsLength)
-        {
-            _logger.LogError(
-                "Output argument is not correct length. Expected {ExpectedOutputArgsLength}, got {outputArgumentsLength}",
-                ExpectedOutputArgsLength, response.OutputArguments.Length);
-
-            throw new InvalidDataException("Output argument is not correct length");
-        }
 
         return new StringResponse(GetTasks, printerId, GetResponseData(response));
     }
