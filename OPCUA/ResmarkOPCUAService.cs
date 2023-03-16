@@ -39,7 +39,7 @@ public class ResmarkOPCUAService : IOPCUAService
         configuration.GetSection("PrinterConnections").Bind(_printerConnections);
     }
 
-    public async Task<CallMethodResult?> CallMethodAsync(
+    public async Task<CallMethodResult> CallMethodAsync(
         string printerId,
         string method,
         CancellationToken stoppingToken,
@@ -49,16 +49,17 @@ public class ResmarkOPCUAService : IOPCUAService
             .ConfigureAwait(false);
     }
 
-    public async Task<CallMethodResult?> CallMethodAsync(
+    public async Task<CallMethodResult> CallMethodAsync(
         string printerId,
         string method,
         CancellationToken stoppingToken,
         string[] inputArgs)
     {
-        return await CallMethodAsync(printerId, method, stoppingToken, inputArgs.ToVariantArray());
+        return await CallMethodAsync(printerId, method, stoppingToken, inputArgs.ToVariantArray())
+            .ConfigureAwait(false);
     }
 
-    private async Task<CallMethodResult?> CallMethodAsync(
+    private async Task<CallMethodResult> CallMethodAsync(
         string printerId,
         string method,
         CancellationToken stoppingToken,
@@ -77,7 +78,22 @@ public class ResmarkOPCUAService : IOPCUAService
 
         var results = response.Results ?? throw new OPCUACommunicationFailedException("Results of the call was null");
 
-        return results.First();
+        var callMethodResult = results.First();
+
+        if (callMethodResult is null || !StatusCode.IsGood(callMethodResult.StatusCode))
+        {
+            _logger.LogError("{Method} OPCUA call failed to get a valid response: {Error} {Code}",
+                method,
+                GetStatusCodeMessage(),
+                callMethodResult?.StatusCode);
+
+            throw new OPCUACommunicationFailedException(
+                $"{method} OPCUA call failed to get a valid response: {GetStatusCodeMessage()} {callMethodResult?.StatusCode}");
+        }
+
+        return callMethodResult;
+
+        string GetStatusCodeMessage() => StatusCodes.GetDefaultMessage(callMethodResult?.StatusCode ?? StatusCodes.BadRequestNotComplete);
     }
 
     private async Task<CallResponse> MakeCallRequest(
@@ -103,7 +119,7 @@ public class ResmarkOPCUAService : IOPCUAService
 
         if (!StatusCode.IsGood(serviceResult))
         {
-            _logger.LogError(" {Method} OPCUA call failed", method);
+            _logger.LogError("{Method} OPCUA call failed", method);
 
             throw new OPCUACommunicationFailedException($"{method} OPCUA call failed");
         }
