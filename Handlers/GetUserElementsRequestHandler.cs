@@ -16,12 +16,12 @@ using XSerializer;
 
 using static Constants;
 
-internal class GetUserElementsRequestHandler : IRequestHandler<GetUserElementsRequest, StringResponse>
+public class GetUserElementsRequestHandler : IRequestHandler<GetUserElementsRequest, StringResponse>
 {
-    private readonly ILogger<GetTasksRequestHandler> _logger;
+    private readonly ILogger<GetUserElementsRequestHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
-    public GetUserElementsRequestHandler(IOPCUAService opcuaService, ILogger<GetTasksRequestHandler> logger)
+    public GetUserElementsRequestHandler(IOPCUAService opcuaService, ILogger<GetUserElementsRequestHandler> logger)
     {
         _logger = logger;
         _opcuaService = opcuaService;

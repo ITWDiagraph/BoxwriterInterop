@@ -13,4 +13,5 @@ public class Constants
     public const string IdleTask = "Idle task";
     public const string ResumeTask = "Resume task";
     public const string GetUserElements = "Get user elements";
+    public const string SetUserElements = "Set user elements";
 }

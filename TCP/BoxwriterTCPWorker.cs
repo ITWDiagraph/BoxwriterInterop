@@ -112,6 +112,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
             LoadTask => new LoadTaskRequest(data),
             IdleTask => new IdleTaskRequest(data),
             GetUserElements => new GetUserElementsRequest(data),
+            SetUserElements => new SetUserElementsRequest(data),
             _ => throw new InvalidDataException("Data response was malformed.")
         };
     }

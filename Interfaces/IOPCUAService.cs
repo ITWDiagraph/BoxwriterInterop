@@ -15,4 +15,11 @@ public interface IOPCUAService
         string method,
         CancellationToken stoppingToken,
         int taskNumber);
+
+    Task<CallMethodResult> CallMethodAsync(
+        string printerId,
+        string method,
+        CancellationToken stoppingToken,
+        int taskNumber,
+        string inputArgs);
 }
