@@ -17,12 +17,10 @@ using static Constants;
 public class AddLineCommandHandler : IRequestHandler<AddLineRequest, StringResponse>
 {
     private readonly PrinterConnections _printerConnections;
-    private readonly IOPCUAService _opcuaService;
     private readonly IHostEnvironment _environment;
 
-    public AddLineCommandHandler(IOPCUAService opcuaService, IHostEnvironment environment, IOptions<PrinterConnections> configuration)
+    public AddLineCommandHandler(IHostEnvironment environment, IOptions<PrinterConnections> configuration)
     {
-        _opcuaService = opcuaService;
         _environment = environment;
         _printerConnections = configuration.Value;
     }
