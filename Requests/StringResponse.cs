@@ -9,6 +9,11 @@ public class StringResponse
         Data = FormatResponse(commandName, printerId, responseData);
     }
 
+    public StringResponse(string commandName, IEnumerable<string> responseData)
+    {
+        Data = FormatResponse(commandName, responseData);
+    }
+
     public StringResponse(string commandName, string printerId, IEnumerable<string> responseData)
     {
         Data = FormatResponse(commandName, printerId, responseData);
@@ -31,6 +36,15 @@ public class StringResponse
         var data = Enumerable.Empty<string>()
             .Append(commandName)
             .Append(printerId)
+            .Concat(responseData);
+
+        return $"{StartToken}{string.Join(TokenSeparator, data)}{EndToken}";
+    }
+
+    private static string FormatResponse(string commandName, IEnumerable<string> responseData)
+    {
+        var data = Enumerable.Empty<string>()
+            .Append(commandName)
             .Concat(responseData);
 
         return $"{StartToken}{string.Join(TokenSeparator, data)}{EndToken}";

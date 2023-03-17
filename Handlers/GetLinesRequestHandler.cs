@@ -1,61 +1,31 @@
 ﻿namespace BoxwriterResmarkInterop.Handlers;
 
-using Exceptions;
-
-using Extensions;
-
-using Interfaces;
+using Configuration;
 
 using MediatR;
 
-using OPCUA;
+using Microsoft.Extensions.Options;
 
 using Requests;
-
-using Workstation.ServiceModel.Ua;
 
 using static Constants;
 
 public class GetLinesRequestHandler : IRequestHandler<GetLinesRequest, StringResponse>
 {
-    private const int ExpectedOutputArgsLength = 3;
-    private readonly ILogger<GetLinesRequestHandler> _logger;
-    private readonly IOPCUAService _opcuaService;
+    private readonly PrinterConnections _printerConnections;
 
-    public GetLinesRequestHandler(IOPCUAService opcuaService, ILogger<GetLinesRequestHandler> logger)
+    public GetLinesRequestHandler(IOptions<PrinterConnections> configuration)
     {
-        _opcuaService = opcuaService;
-        _logger = logger;
+        _printerConnections = configuration.Value;
     }
 
     public async Task<StringResponse> Handle(GetLinesRequest request, CancellationToken cancellationToken)
     {
-        var printerId = request.Data.ExtractPrinterId();
-
-        var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.GetLines.ToString(), cancellationToken)
-            .ConfigureAwait(false);
-
-        if (response?.OutputArguments is null)
-        {
-            _logger.LogError("Get tasks OPCUA call failed");
-
-            throw new OPCUACommunicationFailedException("Get tasks OPCUA call failed");
-        }
-
-        if (response.OutputArguments.Length != ExpectedOutputArgsLength)
-        {
-            _logger.LogError("Output argument is not correct length. Expected {ExpectedOutputArgsLength}, got {outputArgumentsLength}",
-                ExpectedOutputArgsLength,
-                response.OutputArguments.Length);
-
-            throw new InvalidDataException("Output argument is not correct length");
-        }
-
-        return new StringResponse(GetLines, printerId, GetResponseData(response));
+        return new StringResponse(GetLines, GetResponseData());
     }
 
-    private static IEnumerable<string> GetResponseData(CallMethodResult result)
+    private IEnumerable<string> GetResponseData()
     {
-        return result.OutputArguments?[1].Value as string[] ?? new[] { NoLines };
+        return _printerConnections.Printers.Select(printer => printer.PrinterId).ToList();
     }
 }

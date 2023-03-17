@@ -4,8 +4,6 @@ using Configuration;
 
 using Extensions;
 
-using Interfaces;
-
 using MediatR;
 
 using Microsoft.Extensions.Options;
