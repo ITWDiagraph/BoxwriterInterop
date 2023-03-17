@@ -29,7 +29,9 @@ public class SetUserElementsCommandHandler : IRequestHandler<SetUserElementsRequ
     {
         var printerId = request.Data.ExtractPrinterId();
 
-        var data = request.Data.Split(TokenSeparator)
+        var data = request.Data
+            .Trim(StartToken, EndToken)
+            .Split(TokenSeparator)
             .Skip(2)
             .Batch(2)
             .Select(t =>

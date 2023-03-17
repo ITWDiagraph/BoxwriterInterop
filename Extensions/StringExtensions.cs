@@ -6,15 +6,7 @@ public static class StringExtensions
 {
     public static string ExtractPrinterId(this string data) => ExtractInputData(data)[1];
 
-    private static string[] ExtractInputData(string data)
-    {
-        data = data.Trim(StartToken);
-        data = data.Trim(EndToken);
-
-        var printerId = data.Split(TokenSeparator);
-
-        return printerId;
-    }
+    private static string[] ExtractInputData(string data) => data.Trim(StartToken, EndToken).Split(TokenSeparator);
 
     public static string ExtractCommandName(this string data) => ExtractInputData(data)[0];
 
