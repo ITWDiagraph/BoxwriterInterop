@@ -17,7 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Configuration\" />
       <Folder Include="Exceptions\" />
       <Folder Include="Extensions\" />
     </ItemGroup>

@@ -7,45 +7,48 @@ using Extensions;
 using Interfaces;
 
 using MediatR;
+
+using Microsoft.Extensions.Options;
+
 using Requests;
 
 using static Constants;
 
 public class AddLineCommandHandler : IRequestHandler<AddLineRequest, StringResponse>
 {
-    private readonly IConfiguration _configuration;
+    private readonly PrinterConnections _printerConnections;
     private readonly ILogger<AddLineCommandHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
-    public AddLineCommandHandler(ILogger<AddLineCommandHandler> logger, IOPCUAService opcuaService, IConfiguration configuration)
+    public AddLineCommandHandler(ILogger<AddLineCommandHandler> logger, IOPCUAService opcuaService, IOptions<PrinterConnections> configuration)
     {
         _logger = logger;
         _opcuaService = opcuaService;
-        _configuration = configuration;
+        _printerConnections = configuration.Value;
     }
 
     public async Task<StringResponse> Handle(AddLineRequest request, CancellationToken cancellationToken)
     {
         var printerId = request.Data.ExtractPrinterId();
         var ipAddress = request.Data.ExtractAdditionalParameter();
-        var result = false;
 
-        var printerConnections = _configuration.GetSection("PrinterConnections").Get<List<PrinterConnection>>();
+        return _printerConnections.Printers.Any(p => p.PrinterId == printerId)
+            ? new StringResponse(AddLine, printerId, false)
+            : await AddLineAndSaveSettings(printerId, ipAddress);
+    }
 
-        if (!printerConnections.Any(p => p.PrinterId == printerId))
+    private async Task<StringResponse> AddLineAndSaveSettings(string printerId, string ipAddress)
+    {
+        var newConnection = new PrinterConnectionInfo()
         {
-            var newConnection = new PrinterConnection()
-            {
-                IpAddress = ipAddress,
-                PrinterId = printerId
-            };
+            IpAddress = ipAddress,
+            PrinterId = printerId
+        };
 
-            printerConnections.Add(newConnection);
-            _configuration.GetSection("PrinterConnections").Bind(printerConnections);
+        _printerConnections.Printers.Add(newConnection);
 
-            result = true;
-        }
+        await _printerConnections.SaveSettings();
 
-        return new StringResponse(AddLine, printerId, result);
+        return new StringResponse(AddLine, printerId, true);
     }
 }
