@@ -18,12 +18,10 @@ using static Constants;
 
 public class StartTaskCommandHandler : IRequestHandler<StartTaskRequest, StringResponse>
 {
-    private readonly ILogger<StartTaskCommandHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
-    public StartTaskCommandHandler(ILogger<StartTaskCommandHandler> logger, IOPCUAService opcuaService)
+    public StartTaskCommandHandler(IOPCUAService opcuaService)
     {
-        _logger = logger;
         _opcuaService = opcuaService;
     }
 
@@ -34,13 +32,6 @@ public class StartTaskCommandHandler : IRequestHandler<StartTaskRequest, StringR
         var response = await _opcuaService
             .CallMethodAsync(printerId, OPCUAMethods.ResumePrinting.ToString(), cancellationToken, TaskNumber)
             .ConfigureAwait(false);
-
-        if (response is null)
-        {
-            _logger.LogError("Start task OPCUA call failed");
-
-            throw new OPCUACommunicationFailedException("Start task OPCUA call failed");
-        }
 
         return new StringResponse(StartTask, printerId, GetResponseData(response));
     }

@@ -1,4 +1,4 @@
-﻿namespace BoxwriterResmarkInterop.OPCUA;
+namespace BoxwriterResmarkInterop.OPCUA;
 
 using System.Net;
 
@@ -7,6 +7,8 @@ using Configuration;
 using Exceptions;
 
 using Interfaces;
+
+using Microsoft.Extensions.Options;
 
 using Workstation.ServiceModel.Ua;
 using Workstation.ServiceModel.Ua.Channels;
@@ -18,12 +20,11 @@ public class ResmarkOPCUAService : IOPCUAService
     private readonly string _hostName;
     private readonly ILogger<ResmarkOPCUAService> _logger;
 
-    private readonly IEnumerable<PrinterConnection> _printerConnections;
+    private readonly PrinterConnections _printerConnections;
 
-    private readonly Dictionary<string, UaTcpSessionChannel> ChannelLookup =
-        new Dictionary<string, UaTcpSessionChannel>();
+    private readonly Dictionary<string, UaTcpSessionChannel> _channelLookup = new();
 
-    public ResmarkOPCUAService(IConfiguration configuration, ILogger<ResmarkOPCUAService> logger)
+    public ResmarkOPCUAService(IOptions<PrinterConnections> configuration, ILogger<ResmarkOPCUAService> logger)
     {
         _logger = logger;
         _hostName = Dns.GetHostName();
@@ -35,11 +36,10 @@ public class ResmarkOPCUAService : IOPCUAService
             ApplicationUri = $"urn:{_hostName}:{ApplicationName}"
         };
 
-        _printerConnections = new List<PrinterConnection>();
-        configuration.GetSection("PrinterConnections").Bind(_printerConnections);
+        _printerConnections = configuration.Value;
     }
 
-    public async Task<CallMethodResult?> CallMethodAsync(
+    public async Task<CallMethodResult> CallMethodAsync(
         string printerId,
         string method,
         CancellationToken stoppingToken,
@@ -49,16 +49,28 @@ public class ResmarkOPCUAService : IOPCUAService
             .ConfigureAwait(false);
     }
 
-    public async Task<CallMethodResult?> CallMethodAsync(
+    public async Task<CallMethodResult> CallMethodAsync(
         string printerId,
         string method,
         CancellationToken stoppingToken,
         string[] inputArgs)
     {
-        return await CallMethodAsync(printerId, method, stoppingToken, inputArgs.ToVariantArray());
+        return await CallMethodAsync(printerId, method, stoppingToken, inputArgs.ToVariantArray())
+            .ConfigureAwait(false);
     }
 
-    private async Task<CallMethodResult?> CallMethodAsync(
+    public async Task<CallMethodResult> CallMethodAsync(
+        string printerId,
+        string method,
+        CancellationToken stoppingToken,
+        int taskNumber,
+        string inputArgs)
+    {
+        return await CallMethodAsync(printerId, method, stoppingToken, new Variant[] { taskNumber, inputArgs })
+            .ConfigureAwait(false);
+    }
+
+    private async Task<CallMethodResult> CallMethodAsync(
         string printerId,
         string method,
         CancellationToken stoppingToken,
@@ -66,8 +78,6 @@ public class ResmarkOPCUAService : IOPCUAService
     {
         if (printerId is null)
         {
-            _logger.LogError("Printer Id was null");
-
             throw new PrinterNotFoundException("Printer Id was null");
         }
 
@@ -77,7 +87,17 @@ public class ResmarkOPCUAService : IOPCUAService
 
         var results = response.Results ?? throw new OPCUACommunicationFailedException("Results of the call was null");
 
-        return results.First();
+        var callMethodResult = results.First();
+
+        if (callMethodResult is null || !StatusCode.IsGood(callMethodResult.StatusCode))
+        {
+            throw new OPCUACommunicationFailedException(
+                $"{method} OPCUA call failed to get a valid response: {GetStatusCodeMessage()} {callMethodResult?.StatusCode}");
+        }
+
+        return callMethodResult;
+
+        string GetStatusCodeMessage() => StatusCodes.GetDefaultMessage(callMethodResult?.StatusCode ?? StatusCodes.BadRequestNotComplete);
     }
 
     private async Task<CallResponse> MakeCallRequest(
@@ -103,8 +123,6 @@ public class ResmarkOPCUAService : IOPCUAService
 
         if (!StatusCode.IsGood(serviceResult))
         {
-            _logger.LogError(" {Method} OPCUA call failed", method);
-
             throw new OPCUACommunicationFailedException($"{method} OPCUA call failed");
         }
 
@@ -125,8 +143,6 @@ public class ResmarkOPCUAService : IOPCUAService
             }
             catch (Exception ex)
             {
-                _logger.LogError("Channel could not be opened: {ex}", ex);
-
                 throw new OPCUACommunicationFailedException($"Channel could not be opened: {ex}");
             }
         }
@@ -138,7 +154,7 @@ public class ResmarkOPCUAService : IOPCUAService
 
     private string GetAddressFromCache(string printerId)
     {
-        var printer = _printerConnections.FirstOrDefault(p => p.PrinterId == printerId) ??
+        var printer = _printerConnections.Printers.FirstOrDefault(p => p.PrinterId == printerId) ??
                       throw new PrinterNotFoundException($"Printer Id, {printerId} was not found");
 
         return $"opc.tcp://{printer.IpAddress}:16664";
@@ -146,12 +162,12 @@ public class ResmarkOPCUAService : IOPCUAService
 
     private UaTcpSessionChannel GetSessionChannel(string connectionName)
     {
-        if (!ChannelLookup.ContainsKey(connectionName))
+        if (!_channelLookup.ContainsKey(connectionName))
         {
-            ChannelLookup[connectionName] = new UaTcpSessionChannel(_applicationDescription, null,
+            _channelLookup[connectionName] = new UaTcpSessionChannel(_applicationDescription, null,
                 new AnonymousIdentity(), GetAddressFromCache(connectionName), SecurityPolicyUris.None);
         }
 
-        return ChannelLookup[connectionName];
+        return _channelLookup[connectionName];
     }
 }

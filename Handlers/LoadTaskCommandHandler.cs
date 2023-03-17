@@ -18,28 +18,19 @@ using static Constants;
 
 public class LoadTaskCommandHandler : IRequestHandler<LoadTaskRequest, StringResponse>
 {
-    private readonly ILogger<LoadTaskCommandHandler> _logger;
     private readonly IOPCUAService _opcuaService;
 
-    public LoadTaskCommandHandler(ILogger<LoadTaskCommandHandler> logger, IOPCUAService opcuaService)
+    public LoadTaskCommandHandler(IOPCUAService opcuaService)
     {
-        _logger = logger;
         _opcuaService = opcuaService;
     }
 
     public async Task<StringResponse> Handle(LoadTaskRequest request, CancellationToken cancellationToken)
     {
         var printerId = request.Data.ExtractPrinterId();
-        var messageName = request.Data.ExtractMessageName();
+        var messageName = request.Data.ExtractAdditionalParameter();
 
         var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.PrintStoredMessage.ToString(), cancellationToken, messageName);
-
-        if (response is null)
-        {
-            _logger.LogError("{LoadTask} OPCUA call failed", LoadTask);
-
-            throw new OPCUACommunicationFailedException($"{LoadTask} OPCUA call failed");
-        }
 
         return new StringResponse(LoadTask, printerId, GetResponseData(response));
     }

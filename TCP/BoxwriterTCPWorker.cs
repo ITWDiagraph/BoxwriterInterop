@@ -1,4 +1,4 @@
-﻿namespace BoxwriterResmarkInterop.TCP;
+namespace BoxwriterResmarkInterop.TCP;
 
 using System.Net;
 using System.Net.Sockets;
@@ -47,32 +47,47 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogTrace("Waiting for connection on {IPAddress}", address);
-
-                using var client = await server.AcceptTcpClientAsync(stoppingToken).ConfigureAwait(false);
-
-                _logger.LogTrace("New connection made to {IPAddress} from {ClientAddress}", address, client.Client.RemoteEndPoint);
-
-                var stream = client.GetStream();
-                var builder = new StringBuilder();
-                var buffer = new byte[256];
-
-                do
+                try
                 {
-                    var length = await stream.ReadAsync(buffer, 0, buffer.Length, stoppingToken).ConfigureAwait(false);
+                    _logger.LogTrace("Waiting for connection on {IPAddress}", address);
 
-                    builder.Append(Encoding.ASCII.GetString(buffer, 0, length));
-                } while (stream.DataAvailable);
+                    using var tcpClient = await server
+                        .AcceptTcpClientAsync(stoppingToken)
+                        .ConfigureAwait(false);
 
-                var data = builder.ToString();
+                    _logger.LogTrace("New connection made to {IPAddress} from {ClientAddress}", address, tcpClient.Client.RemoteEndPoint);
 
-                _logger.LogInformation("Read data {data} to {IPAddress} from {RemoteAddress}", data, address, client.Client.RemoteEndPoint);
+                    var stream = tcpClient.GetStream();
+                    var builder = new StringBuilder();
+                    var buffer = new byte[256];
 
-                var request = CreateRequest(data);
+                    do
+                    {
+                        var length = await stream
+                            .ReadAsync(buffer, 0, buffer.Length, stoppingToken)
+                            .ConfigureAwait(false);
 
-                var response = await _mediator.Send(request, stoppingToken).ConfigureAwait(false);
+                        builder.Append(Encoding.ASCII.GetString(buffer, 0, length));
 
-                await ProcessDataAsync(response.Data, stream, stoppingToken).ConfigureAwait(false);
+                    } while (stream.DataAvailable);
+
+                    var data = builder.ToString();
+
+                    _logger.LogInformation("Read data {data} to {IPAddress} from {RemoteAddress}", data, address,
+                        tcpClient.Client.RemoteEndPoint);
+
+                    var request = CreateRequest(data);
+
+                    var response = await _mediator.Send(request, stoppingToken)
+                        .ConfigureAwait(false);
+
+                    await ProcessDataAsync(response.Data, stream, stoppingToken)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError("An exception occurred when receiving data {Exception}", e);
+                }
             }
         }
         catch (SocketException ex)
@@ -93,11 +108,14 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
         {
             GetTasks => new GetTasksRequest(data),
             StartTask => new StartTaskRequest(data),
+            ResumeTask => new ResumeTaskRequest(data),
             LoadTask => new LoadTaskRequest(data),
+            IdleTask => new IdleTaskRequest(data),
+            AddLine => new AddLineRequest(data),
+            GetUserElements => new GetUserElementsRequest(data),
+            SetUserElements => new SetUserElementsRequest(data),
             GetLines => new GetLinesRequest(data),
-
-
-            _ => throw new InvalidOperationException("Data response was malformed.")
+            _ => throw new InvalidDataException("Data response was malformed.")
         };
     }
 }
