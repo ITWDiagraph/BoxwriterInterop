@@ -16,6 +16,7 @@ using static Constants;
 
 public class AddLineCommandHandler : IRequestHandler<AddLineRequest, StringResponse>
 {
+    private readonly IOptions<PrinterConnections> _printerOptions;
     private readonly PrinterConnections _printerConnections;
     private readonly IHostEnvironment _environment;
 
@@ -23,6 +24,7 @@ public class AddLineCommandHandler : IRequestHandler<AddLineRequest, StringRespo
     {
         _environment = environment;
         _printerConnections = configuration.Value;
+        _printerOptions = configuration;
     }
 
     public async Task<StringResponse> Handle(AddLineRequest request, CancellationToken cancellationToken)
@@ -45,7 +47,7 @@ public class AddLineCommandHandler : IRequestHandler<AddLineRequest, StringRespo
 
         _printerConnections.Printers.Add(newConnection);
 
-        await _printerConnections.SaveSettings(_environment);
+        await _printerConnections.SaveSettings(_printerOptions);
 
         return new StringResponse(AddLine, printerId, true);
     }

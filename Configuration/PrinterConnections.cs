@@ -1,6 +1,8 @@
-﻿namespace BoxwriterResmarkInterop.Configuration;
+namespace BoxwriterResmarkInterop.Configuration;
 
 using System.Text.Json;
+
+using Microsoft.Extensions.Options;
 
 using static Constants;
 
@@ -8,11 +10,12 @@ public class PrinterConnections
 {
     public List<PrinterConnectionInfo> Printers { get; set; } = new List<PrinterConnectionInfo>();
 
-    public async Task SaveSettings(IHostEnvironment environment)
+    public async Task SaveSettings(IOptions<PrinterConnections> options)
     {
-        var filepath = Path.Combine(AppContext.BaseDirectory, $"{AppSettings}.{environment.EnvironmentName}.json");
+        var filepath = Path.Combine(AppContext.BaseDirectory, $"{nameof(PrinterConnections)}.json");
 
-        var settings = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+        var settings = JsonSerializer
+            .Serialize<PrinterConnections>(this, new JsonSerializerOptions { WriteIndented = true });
 
         await File.WriteAllTextAsync(filepath, settings);
     }

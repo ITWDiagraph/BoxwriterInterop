@@ -6,11 +6,15 @@ using BoxwriterResmarkInterop.TCP;
 using BoxwriterResmarkInterop.UDP;
 
 Host.CreateDefaultBuilder(args)
+    .ConfigureAppConfiguration((context, builder) =>
+        builder
+            .AddJsonFile($"{nameof(PrinterConnections)}.json", optional: false, reloadOnChange: true)
+            .AddJsonFile("appsettings.json")
+            .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json"))
     .ConfigureLogging(logger => logger.AddConsole())
     .ConfigureServices((builder, services) =>
     {
-        services.Configure<PrinterConnections>(connections =>
-            connections.Printers = builder.Configuration
+        services.Configure<PrinterConnections>(connections => connections.Printers = builder.Configuration
                 .GetSection("PrinterConnections")
                 .Get<List<PrinterConnectionInfo>>() ?? throw new InvalidOperationException());
 
