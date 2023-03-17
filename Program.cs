@@ -5,17 +5,19 @@ using BoxwriterResmarkInterop.OPCUA;
 using BoxwriterResmarkInterop.TCP;
 using BoxwriterResmarkInterop.UDP;
 
+using static BoxwriterResmarkInterop.Constants;
+
 Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((context, builder) =>
         builder
             .AddJsonFile($"{nameof(PrinterConnections)}.json", optional: false, reloadOnChange: true)
-            .AddJsonFile("appsettings.json")
-            .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json"))
+            .AddJsonFile($"{AppSettings}.json")
+            .AddJsonFile($"{AppSettings}.{context.HostingEnvironment.EnvironmentName}.json"))
     .ConfigureLogging(logger => logger.AddConsole())
     .ConfigureServices((builder, services) =>
     {
         services.Configure<PrinterConnections>(connections => connections.Printers = builder.Configuration
-                .GetSection("PrinterConnections")
+                .GetSection(nameof(PrinterConnections))
                 .Get<List<PrinterConnectionInfo>>() ?? throw new InvalidOperationException());
 
         services.AddSingleton<IUdpDataHandler, BoxwriterUDPHandler>()

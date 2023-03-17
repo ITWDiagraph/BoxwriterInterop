@@ -10,12 +10,12 @@ public class PrinterConnections
 {
     public List<PrinterConnectionInfo> Printers { get; set; } = new List<PrinterConnectionInfo>();
 
-    public async Task SaveSettings(IOptions<PrinterConnections> options)
+    public async Task SaveSettings()
     {
         var filepath = Path.Combine(AppContext.BaseDirectory, $"{nameof(PrinterConnections)}.json");
 
         var settings = JsonSerializer
-            .Serialize<PrinterConnections>(this, new JsonSerializerOptions { WriteIndented = true });
+            .Serialize(this, new JsonSerializerOptions { WriteIndented = true });
 
         await File.WriteAllTextAsync(filepath, settings);
     }
