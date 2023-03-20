@@ -14,9 +14,7 @@ public abstract class BoxwriterWorkerBase : BackgroundService
             tasks.Add(ListenAsync(ipAddress, stoppingToken));
         }
 
-#if DEBUG
-            tasks.Add(ListenAsync(IPAddress.Loopback, stoppingToken));
-#endif
+        tasks.Add(ListenAsync(IPAddress.Loopback, stoppingToken));
 
         await Task.WhenAll(tasks);
     }
