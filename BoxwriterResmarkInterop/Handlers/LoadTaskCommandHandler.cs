@@ -28,7 +28,7 @@ public class LoadTaskCommandHandler : IRequestHandler<LoadTaskRequest, StringRes
     public async Task<StringResponse> Handle(LoadTaskRequest request, CancellationToken cancellationToken)
     {
         var printerId = request.Data.ExtractPrinterId();
-        var messageName = request.Data.ExtractMessageName();
+        var messageName = request.Data.ExtractAdditionalParameter();
 
         var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.PrintStoredMessage.ToString(), cancellationToken, messageName);
 

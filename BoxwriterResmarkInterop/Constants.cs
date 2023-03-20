@@ -14,4 +14,6 @@ public class Constants
     public const string ResumeTask = "Resume task";
     public const string GetUserElements = "Get user elements";
     public const string SetUserElements = "Set user elements";
+    public const string AddLine = "Add line"; 
+    public const string AppSettings = "appsettings"; 
 }
