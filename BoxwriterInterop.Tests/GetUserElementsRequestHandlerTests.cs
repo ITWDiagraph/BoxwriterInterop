@@ -15,6 +15,7 @@ using XSerializer;
 public class GetUserElementsRequestHandlerTests
 {
     private const string ValidRequest = "{Get user elements, 0000}";
+    private const int TaskNumber = 1;
     private readonly AutoMocker _mocker = new();
 
     public GetUserElementsRequestHandlerTests()
@@ -23,7 +24,7 @@ public class GetUserElementsRequestHandlerTests
                 It.IsAny<string>(),
                 It.Is<string>(s => s == OPCUAMethods.GetMessageVariableData.ToString()),
                 It.IsAny<CancellationToken>(),
-                It.Is<int>(i => i == 1)))
+                It.Is<int>(i => i == TaskNumber)))
             .Returns(() =>
             {
                 var serializer = new XmlSerializer<Dictionary<string, string>>();
@@ -63,7 +64,7 @@ public class GetUserElementsRequestHandlerTests
                 It.IsAny<string>(),
                 It.Is<string>(s => s == OPCUAMethods.GetMessageVariableData.ToString()),
                 It.IsAny<CancellationToken>(),
-                It.Is<int>(i => i == 1)))
+                It.Is<int>(i => i == TaskNumber)))
             .Returns(() => Task.FromResult(new CallMethodResult
             {
                 OutputArguments = new[] { new Variant(0), new Variant(string.Empty) }
