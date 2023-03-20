@@ -29,7 +29,18 @@ public class SetUserElementsCommandHandler : IRequestHandler<SetUserElementsRequ
     {
         var printerId = request.Data.ExtractPrinterId();
 
-        var data = request.Data
+        var data = GetDataAsDictionary(request.Data);
+
+        var serializer = new XmlSerializer<Dictionary<string, string>>();
+
+        _ = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.SetMessageVariableData.ToString(),
+            cancellationToken, TaskNumber, serializer.Serialize(data)).ConfigureAwait(false);
+
+        return new StringResponse(GetUserElements, printerId, data.Count.ToString());
+    }
+
+    public static Dictionary<string, string> GetDataAsDictionary(string data) =>
+        data
             .Trim(StartToken, EndToken)
             .Split(TokenSeparator)
             .Skip(2)
@@ -41,12 +52,4 @@ public class SetUserElementsCommandHandler : IRequestHandler<SetUserElementsRequ
                 return new KeyValuePair<string, string>(items[0], items[1]);
             })
             .ToDictionary();
-
-        var serializer = new XmlSerializer<Dictionary<string, string>>();
-
-        _ = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.SetMessageVariableData.ToString(),
-            cancellationToken, TaskNumber, serializer.Serialize(data)).ConfigureAwait(false);
-
-        return new StringResponse(GetUserElements, printerId, data.Count.ToString());
-    }
 }
