@@ -27,11 +27,11 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish -r win-x64 --self-contained true -c Release -p:PublishSingleFile=true
+      run: dotnet publish BoxwriterResmarkInterop/BoxwriterResmarkInterop.csproj -r win-x64 --self-contained true -c Release -p:PublishSingleFile=true
     - name: Archive Build
       uses: actions/upload-artifact@v3
       with:
         name: Application
         path: |
-          bin/Release/net7.0/win-x64/publish/BoxwriterResmarkInterop.exe
-          bin/Release/net7.0/win-x64/publish/appsettings.json
+          BoxwriterResmarkInterop/bin/Release/net7.0/win-x64/publish/BoxwriterResmarkInterop.exe
+          BoxwriterResmarkInterop/bin/Release/net7.0/win-x64/publish/appsettings.json
