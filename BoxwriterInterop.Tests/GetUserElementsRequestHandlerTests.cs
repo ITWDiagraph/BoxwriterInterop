@@ -53,8 +53,7 @@ public class GetUserElementsRequestHandlerTests
 
         var response = await handler.Handle(new GetUserElementsRequest(ValidRequest), CancellationToken.None);
 
-        Assert.Equal(response.Data,
-            "{Get user elements, 0000, Test Prompt 1, Test Value 1, Test Prompt 2, Test Value 2}");
+        Assert.Equal("{Get user elements, 0000, Test Prompt 1, Test Value 1, Test Prompt 2, Test Value 2}", response.Data);
     }
 
     [Fact]
