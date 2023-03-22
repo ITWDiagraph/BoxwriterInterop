@@ -18,9 +18,12 @@ public class GetUserElementsRequestHandlerTests
     private const int TaskNumber = 1;
     private readonly AutoMocker _mocker = new();
 
-    public GetUserElementsRequestHandlerTests()
+    [Fact]
+    public async Task GetUserElements_HandleGoodRequest_ReturnsValidStringResponse()
     {
-        _mocker.GetMock<IOPCUAService>().Setup(service => service.CallMethodAsync(
+        _mocker
+            .GetMock<IOPCUAService>()
+            .Setup(service => service.CallMethodAsync(
                 It.IsAny<string>(),
                 It.Is<string>(s => s == OPCUAMethods.GetMessageVariableData.ToString()),
                 It.IsAny<CancellationToken>(),
@@ -39,17 +42,8 @@ public class GetUserElementsRequestHandlerTests
 
                 return Task.FromResult(result);
             });
-    }
 
-    private IOPCUAService _opcuaService => _mocker.GetMock<IOPCUAService>().Object;
-
-    private ILogger<GetUserElementsRequestHandler> _logger =>
-        _mocker.GetMock<ILogger<GetUserElementsRequestHandler>>().Object;
-
-    [Fact]
-    public async Task GetUserElements_HandleGoodRequest_ReturnsValidStringResponse()
-    {
-        var handler = new GetUserElementsRequestHandler(_opcuaService, _logger);
+        var handler = _mocker.CreateInstance<GetUserElementsRequestHandler>();
 
         var response = await handler.Handle(new GetUserElementsRequest(ValidRequest), CancellationToken.None);
 
@@ -59,7 +53,9 @@ public class GetUserElementsRequestHandlerTests
     [Fact]
     public async Task GetUserElements_ThrowsOnNoData()
     {
-        _mocker.GetMock<IOPCUAService>().Setup(service => service.CallMethodAsync(
+        _mocker
+            .GetMock<IOPCUAService>()
+            .Setup(service => service.CallMethodAsync(
                 It.IsAny<string>(),
                 It.Is<string>(s => s == OPCUAMethods.GetMessageVariableData.ToString()),
                 It.IsAny<CancellationToken>(),
@@ -69,7 +65,7 @@ public class GetUserElementsRequestHandlerTests
                 OutputArguments = new[] { new Variant(0), new Variant(string.Empty) }
             }));
 
-        var handler = new GetUserElementsRequestHandler(_opcuaService, _logger);
+        var handler = _mocker.CreateInstance<GetUserElementsRequestHandler>();
 
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await handler.Handle(new GetUserElementsRequest(ValidRequest), CancellationToken.None));
