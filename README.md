@@ -24,9 +24,99 @@ Making a TCP Request on the port *default 2202* with the data
 > {Get tasks, **_PrinterName_**}
 
 The application will respond with
-> {Get tasks, **_PrinterName_**, **_TaskName1_**, **_TaskName2_**, ... }
+> {Get tasks, **_PrinterName_**, **_TaskName1_**, **_TaskName2_**, ...}
 - **_PrinterName_**: Name of the printer that the command is targeting
 - **_TaskName_**: Name of a task that is available on this printer
+
+### LoadTask
+This command is used to print a message
+
+Making a TCP Request on the port *default 2202* with the data
+> {Load task, **_PrinterName_**, **_TaskName_**}
+
+The application will respond with
+> {Load task, **_PrinterName_**, **_Result_**}
+- **_PrinterName_**: Name of the printer that the command is targeting
+- **_Result_**: Result of the command (1 for success, 0 for failure)
+
+### StartTask
+This command resumes printing the current message
+
+Making a TCP Request on the port *default 2202* with the data
+> {Start task, **_PrinterName_**}
+
+The application will respond with
+> {Start task, **_PrinterName_**, **_Result_**}
+- **_PrinterName_**: Name of the printer that the command is targeting
+- **_Result_**: Result of the command (1 for success, 0 for failure)
+
+### IdleTask
+This command pauses the current message
+
+Making a TCP Request on the port *default 2202* with the data
+> {Idle task, **_PrinterName_**}
+
+The application will respond with
+> {Idle task, **_PrinterName_**, **_Result_**}
+- **_PrinterName_**: Name of the printer that the command is targeting
+- **_Result_**: Result of the command (1 for success, 0 for failure)
+
+### ResumeTask
+This command resumes the current message
+
+Making a TCP Request on the port *default 2202* with the data
+> {Resume task, **_PrinterName_**}
+
+The application will respond with
+> {Resume task, **_PrinterName_**, **_Result_**}
+- **_PrinterName_**: Name of the printer that the command is targeting
+- **_Result_**: Result of the command (1 for success, 0 for failure)
+
+### AddLine
+This command saves a printer to the configuration file
+
+Making a TCP Request on the port *default 2202* with the data
+> {Add line, **_PrinterName_**, **IPAddress**}
+
+The application will respond with
+> {Get lines, **_PrinterName1_**, **_PrinterName2_**, ...}
+- **_PrinterName_**: Name of a printer that is configured
+
+### GetLines
+This request gets all the saved printers
+
+Making a TCP Request on the port *default 2202* with the data
+> {Get lines}
+
+The application will respond with
+> {Get lines, **_PrinterName1_**, **_PrinterName2_**, ...}
+- **_PrinterName_**: Name of a printer that is saved
+
+### GetUserElements
+This request gets the variable data available for the current message. It returns no data if there are no variables in the message.
+
+Making a TCP Request on the port *default 2202* with the data
+> {Get user elements, **_PrinterName_**}
+
+The application will respond with
+> {Get user elements, **_PrinterName_**, **_Prompt1_**, **_Data1_**, **_Prompt2_**, **_Data2_**...}
+- **_PrinterName_**: Name of a printer that is saved
+- **_Prompt_**: The variable prompt
+- **_Data_**: The variable data
+
+### SetUserElements
+This request gets the variable data available for the current message. It returns no data if there are no variables in the message.
+
+Making a TCP Request on the port *default 2202* with the data
+> {Set user elements, **_PrinterName_**, **_Prompt1_**, **_Data1_**, **_Prompt2_**, **_Data2_**...}
+
+The application will respond with
+> {Set user elements, **_PrinterName_**, **_Result_**}
+- **_PrinterName_**: Name of a printer that is saved
+- **_Prompt_**: The variable prompt
+- **_Data_**: The variable data
+- **_Result_**: Result of the command (1 for success, 0 for failure)
+
 
 
 
