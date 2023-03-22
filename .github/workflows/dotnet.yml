@@ -35,3 +35,4 @@ jobs:
         path: |
           BoxwriterResmarkInterop/bin/Release/net7.0/win-x64/publish/BoxwriterResmarkInterop.exe
           BoxwriterResmarkInterop/bin/Release/net7.0/win-x64/publish/appsettings.json
+          BoxwriterResmarkInterop/bin/Release/net7.0/win-x64/publish/PrinterConnections.json
