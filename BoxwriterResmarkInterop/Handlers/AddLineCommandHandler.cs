@@ -37,10 +37,7 @@ public class AddLineCommandHandler : IRequestHandler<AddLineRequest, StringRespo
             PrinterId = printerId
         };
 
-        if (_printerConnections.Printers.Any(p => p.PrinterId == printerId))
-        {
-            _printerConnections.Printers.Remove(_printerConnections.Printers.First(p => p.PrinterId == printerId));
-        }
+        _printerConnections.Printers.RemoveAll(p => p.PrinterId == printerId);
 
         _printerConnections.Printers.Add(newConnection);
 
