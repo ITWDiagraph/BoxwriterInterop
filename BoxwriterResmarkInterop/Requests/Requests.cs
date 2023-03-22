@@ -15,3 +15,5 @@ public sealed record ResumeTaskRequest(string Data) : IRequest<StringResponse>;
 public sealed record GetUserElementsRequest(string Data) : IRequest<StringResponse>;
 
 public sealed record SetUserElementsRequest(string Data) : IRequest<StringResponse>;
+
+public sealed record AddLineRequest(string Data) : IRequest<StringResponse>;

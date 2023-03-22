@@ -1,6 +1,6 @@
-﻿namespace BoxwriterResmarkInterop.Configuration;
+namespace BoxwriterResmarkInterop.Configuration;
 
-public class PrinterConnection
+public class PrinterConnectionInfo
 {
     public string? PrinterId { get; set; }
 
