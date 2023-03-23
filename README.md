@@ -36,7 +36,7 @@ The application will respond with
 
 There will be no tasks returned if there are no tasks on the printer
 
-### Load Task
+## Load Task
 Prints a message
 
 Making a TCP Request on the port *default 2202* with the data
