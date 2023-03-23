@@ -9,7 +9,7 @@ public class StringResponse
         Data = FormatResponse(commandName, printerId, responseData);
     }
 
-    public StringResponse(string commandName, IEnumerable<string?> responseData)
+    public StringResponse(string commandName, IEnumerable<string> responseData)
     {
         Data = FormatResponse(commandName, responseData);
     }
@@ -26,27 +26,21 @@ public class StringResponse
 
     public string Data { get; }
 
-    private static string FormatResponse(string commandName, string responseData)
-    {
-        return FormatResponse(commandName, new[] { responseData });
-    }
-
-    private static string FormatResponse(string commandName, string? printerId, string responseData)
+    private static string FormatResponse(string commandName, string printerId, string responseData)
     {
         return FormatResponse(commandName, printerId, new[] { responseData });
     }
 
-    private static string FormatResponse(string commandName, string? printerId, IEnumerable<string> responseData)
+    private static string FormatResponse(string commandName, string printerId, IEnumerable<string> responseData)
     {
         var data = Enumerable.Empty<string>()
-            .Append(commandName)
             .Append(printerId)
             .Concat(responseData);
 
-        return $"{StartToken}{string.Join(TokenSeparator, data)}{EndToken}";
+        return FormatResponse(commandName, data);
     }
 
-    private static string FormatResponse(string commandName, IEnumerable<string?> responseData)
+    private static string FormatResponse(string commandName, IEnumerable<string> responseData)
     {
         var data = Enumerable.Empty<string>()
             .Append(commandName)

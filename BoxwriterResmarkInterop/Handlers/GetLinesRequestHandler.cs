@@ -24,7 +24,7 @@ public class GetLinesRequestHandler : IRequestHandler<GetLinesRequest, StringRes
         return Task.FromResult(new StringResponse(GetLines, GetPrinters()));
     }
 
-    private IEnumerable<string?> GetPrinters()
+    private IEnumerable<string> GetPrinters()
     {
         return _printerConnections.Printers.Select(printer => printer.PrinterId);
     }
