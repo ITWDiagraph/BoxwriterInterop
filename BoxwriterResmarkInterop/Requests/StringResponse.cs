@@ -9,7 +9,7 @@ public class StringResponse
         Data = FormatResponse(commandName, printerId, responseData);
     }
 
-    public StringResponse(string commandName, IEnumerable<string> responseData)
+    public StringResponse(string commandName, IEnumerable<string?> responseData)
     {
         Data = FormatResponse(commandName, responseData);
     }
