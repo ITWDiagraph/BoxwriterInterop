@@ -6,6 +6,15 @@ A mapping between the Boxwriter API and the new OPCUA API allowing customers to 
 ### Configuration
 Use the Add Line command to add printer names and addresses to the PrinterConnections.json file.
 
+### Requests and Responses
+Requests are made on TCP port `2202` (unless otherwise specified) in the format:
+
+    {command, printerID, param1, param2, ...}
+
+Responses will typically be in the following format:
+
+    {command, printerID, result1, result2, ...}
+
 # Functionality
 ## Locate
 Making a UDP broadcast Request on port 2200 with the data
@@ -23,7 +32,7 @@ The application will respond with
 ## Get Tasks
 Determines the available tasks that the printer can start
 
-Making a TCP Request on the port *default 2202* with the data
+Making a request with the data
 
     {Get tasks, PrinterName}
 
@@ -34,12 +43,12 @@ The application will respond with
 - **PrinterName**: Name of the printer that the command is targeting
 - **TaskName**: Name of a task that is on the printer
 
-There will be no tasks returned if there are no tasks on the printer
+`{Get tasks, PrinterName}` is returned if there are no tasks on the printer
 
 ## Load Task
 Prints a message
 
-Making a TCP Request on the port *default 2202* with the data
+Making a request with the data
 
     {Load task, PrinterName, TaskName}
 
@@ -53,7 +62,7 @@ The application will respond with
 ## Start Task
 Resumes printing the current message
 
-Making a TCP Request on the port *default 2202* with the data
+Making a request with the data
 
     {Start task, PrinterName}
 
@@ -65,9 +74,9 @@ The application will respond with
 - **Result**: Result of the command (1 for success, 0 for failure)
 
 ## Idle Task
-This command pauses the current message
+Pauses the current message
 
-Making a TCP Request on the port *default 2202* with the data
+Making a request with the data
 
     {Idle task, PrinterName}
 
@@ -81,7 +90,7 @@ The application will respond with
 ## Resume Task
 Resumes the current message
 
-Making a TCP Request on the port *default 2202* with the data
+Making a request with the data
 
     {Resume task, PrinterName}
 
@@ -95,7 +104,7 @@ The application will respond with
 ## Add Line
 Saves a printer to the configuration file
 
-Making a TCP Request on the port *default 2202* with the data
+Making a request with the data
 
     {Add line, PrinterName, IPAddress}
 
@@ -107,9 +116,9 @@ The application will respond with
 - **Result**: Result of the command (1 for success, 0 for failure)
 
 ## Get Lines
-Gets all the saved printers
+Gets all saved printer connections
 
-Making a TCP Request on the port *default 2202* with the data
+Making a request with the data
 
     {Get lines}
 
@@ -120,9 +129,9 @@ The application will respond with
 - **PrinterName**: Name of a printer that is saved
 
 ## Get User Elements
-Gets the variable data available for the current message. It returns no data if there are no variables in the message.
+Gets the variable data available for the current message
 
-Making a TCP Request on the port *default 2202* with the data
+Making a request with the data
 
     {Get user elements, PrinterName}
 
@@ -134,10 +143,12 @@ The application will respond with
 - **Prompt**: The variable prompt
 - **Data**: The variable data
 
-## Set User Elements
-Gets the variable data available for the current message. It returns no data if there are no variables in the message.
+`{Get user elements, PrinterName}` is returned if there are no variables in the message.
 
-Making a TCP Request on the port *default 2202* with the data
+## Set User Elements
+Sets the variable data for the current message
+
+Making a request with the data
 
     {Set user elements, PrinterName, Prompt1, Data1, Prompt2, Data2, ...}
 
