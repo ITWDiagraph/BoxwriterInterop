@@ -6,103 +6,105 @@ A mapping between the Boxwriter API and the new OPCUA API allowing customers to 
 ### Configuration
 Add printer names and addresses to the appsettings.json file.
 
-## Functionality
-### Locate
+# Functionality
+## Locate
 Making a UDP broadcast Request on port 2200 with the data
 
     {Locate BoxWriter}
 
 The application will respond with
 
-    {Locate BoxWriter, **_Address_**, **_Port_**, **_Machine Name_**}
+    {Locate BoxWriter, Address, Port, Machine Name}
 
-- **_Address_**: IP address of the machine
-- **_Port_**: Port it will respond on
-- **_Machine Name_**: Machine name
+- **Address**: IP address of the machine
+- **Port**: Port it will respond on
+- **Machine Name**: Machine name
 
-### Get Tasks
+## Get Tasks
 Determines the available tasks or messages that the printer can start
 
 Making a TCP Request on the port *default 2202* with the data
 
-    {Get tasks, **_PrinterName_**}
+    {Get tasks, PrinterName}
 
 The application will respond with
     
-    {Get tasks, **_PrinterName_**, **_TaskName1_**, **_TaskName2_**, ...}
+    {Get tasks, PrinterName, TaskName1, TaskName2, ...}
     
-- **_PrinterName_**: Name of the printer that the command is targeting
-- **_TaskName_**: Name of a task that is available on this printer
+- **PrinterName**: Name of the printer that the command is targeting
+- **TaskName**: Name of a task that is available on this printer
 
 ### Load Task
 Prints a message
 
 Making a TCP Request on the port *default 2202* with the data
 
-    {Load task, **_PrinterName_**, **_TaskName_**}
+    {Load task, PrinterName, TaskName}
 
 The application will respond with
 
-    {Load task, **_PrinterName_**, **_Result_**}
+    {Load task, PrinterName, Result}
 
-- **_PrinterName_**: Name of the printer that the command is targeting
-- **_Result_**: Result of the command (1 for success, 0 for failure)
+- **PrinterName**: Name of the printer that the command is targeting
+- **Result**: Result of the command (1 for success, 0 for failure)
 
-### Start Task
+## Start Task
 Resumes printing the current message
 
 Making a TCP Request on the port *default 2202* with the data
 
-    {Start task, **_PrinterName_**}
+    {Start task, PrinterName}
 
 The application will respond with
 
-    {Start task, **_PrinterName_**, **_Result_**}
+    {Start task, PrinterName, Result}
     
-- **_PrinterName_**: Name of the printer that the command is targeting
-- **_Result_**: Result of the command (1 for success, 0 for failure)
+- **PrinterName**: Name of the printer that the command is targeting
+- **Result**: Result of the command (1 for success, 0 for failure)
 
-### Idle Task
+## Idle Task
 This command pauses the current message
 
 Making a TCP Request on the port *default 2202* with the data
 
-    {Idle task, **_PrinterName_**}
+    {Idle task, PrinterName}
 
 The application will respond with
 
-    {Idle task, **_PrinterName_**, **_Result_**}
+    {Idle task, PrinterName, Result}
     
-- **_PrinterName_**: Name of the printer that the command is targeting
-- **_Result_**: Result of the command (1 for success, 0 for failure)
+- **PrinterName**: Name of the printer that the command is targeting
+- **Result**: Result of the command (1 for success, 0 for failure)
 
-### Resume Task
+## Resume Task
 Resumes the current message
 
 Making a TCP Request on the port *default 2202* with the data
 
-    {Resume task, **_PrinterName_**}
+    {Resume task, PrinterName}
 
 The application will respond with
 
-    {Resume task, **_PrinterName_**, **_Result_**}
+    {Resume task, PrinterName, Result}
     
-- **_PrinterName_**: Name of the printer that the command is targeting
-- **_Result_**: Result of the command (1 for success, 0 for failure)
+- **PrinterName**: Name of the printer that the command is targeting
+- **Result**: Result of the command (1 for success, 0 for failure)
 
-### Add Line
+## Add Line
 Saves a printer to the configuration file
 
 Making a TCP Request on the port *default 2202* with the data
 
-    {Add line, **_PrinterName_**, **IPAddress**}
+    {Add line, PrinterName, IPAddress}
 
 The application will respond with
-> {Add line, **_PrinterName_**, **_Result_**}
-- **_PrinterName_**: Name of a printer that is configured
-- **_Result_**: Result of the command (1 for success, 0 for failure)
+ 
+    {Add line, PrinterName, Result}
+    
+- **PrinterName**: Name of a printer that is configured
+- **Result**: Result of the command (1 for success, 0 for failure)
 
-### Get Lines
+## Get Lines
 Gets all the saved printers
 
 Making a TCP Request on the port *default 2202* with the data
@@ -111,40 +113,40 @@ Making a TCP Request on the port *default 2202* with the data
 
 The application will respond with
 
-    {Get lines, **_PrinterName1_**, **_PrinterName2_**, ...}
+    {Get lines, PrinterName1, PrinterName2, ...}
     
-- **_PrinterName_**: Name of a printer that is saved
+- **PrinterName**: Name of a printer that is saved
 
-### Get User Elements
+## Get User Elements
 Gets the variable data available for the current message. It returns no data if there are no variables in the message.
 
 Making a TCP Request on the port *default 2202* with the data
 
-    {Get user elements, **_PrinterName_**}
+    {Get user elements, PrinterName}
 
 The application will respond with
 
-    {Get user elements, **_PrinterName_**, **_Prompt1_**, **_Data1_**, **_Prompt2_**, **_Data2_**...}
+    {Get user elements, PrinterName, Prompt1, Data1, Prompt2, Data2, ...}
     
-- **_PrinterName_**: Name of the printer
-- **_Prompt_**: The variable prompt
-- **_Data_**: The variable data
+- **PrinterName**: Name of the printer
+- **Prompt**: The variable prompt
+- **Data**: The variable data
 
-### Set User Elements
+## Set User Elements
 Gets the variable data available for the current message. It returns no data if there are no variables in the message.
 
 Making a TCP Request on the port *default 2202* with the data
 
-    {Set user elements, **_PrinterName_**, **_Prompt1_**, **_Data1_**, **_Prompt2_**, **_Data2_**...}
+    {Set user elements, PrinterName, Prompt1, Data1, Prompt2, Data2, ...}
 
 The application will respond with
 
-    {Set user elements, **_PrinterName_**, **_Result_**}
+    {Set user elements, PrinterName, Result}
     
-- **_PrinterName_**: Name of the printer
-- **_Prompt_**: The variable prompt
-- **_Data_**: The variable data
-- **_Result_**: Result of the command (1 for success, 0 for failure)
+- **PrinterName**: Name of the printer
+- **Prompt**: The variable prompt
+- **Data**: The variable data
+- **Result**: Result of the command (1 for success, 0 for failure)
 
 
 
