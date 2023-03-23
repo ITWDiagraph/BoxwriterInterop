@@ -4,7 +4,7 @@ A mapping between the Boxwriter API and the new OPCUA API allowing customers to 
 [![.NET](https://github.com/ITWDiagraph/BoxwriterInterop/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/ITWDiagraph/BoxwriterInterop/actions/workflows/dotnet.yml)
 
 ### Configuration
-Add printer names and addresses to the appsettings.json file.
+Use the Add Line command to add printer names and addresses to the PrinterConnections.json file.
 
 # Functionality
 ## Locate
@@ -21,7 +21,7 @@ The application will respond with
 - **Machine Name**: Machine name
 
 ## Get Tasks
-Determines the available tasks or messages that the printer can start
+Determines the available tasks that the printer can start
 
 Making a TCP Request on the port *default 2202* with the data
 
@@ -32,7 +32,9 @@ The application will respond with
     {Get tasks, PrinterName, TaskName1, TaskName2, ...}
     
 - **PrinterName**: Name of the printer that the command is targeting
-- **TaskName**: Name of a task that is available on this printer
+- **TaskName**: Name of a task that is on the printer
+
+There will be no tasks returned if there are no tasks on the printer
 
 ### Load Task
 Prints a message
