@@ -17,5 +17,4 @@ public class Constants
     public const string AddLine = "Add line";
     public const string AppSettings = "appsettings";
     public const string GetLines = "Get lines";
-    public const string NoLines = "No lines";
 }

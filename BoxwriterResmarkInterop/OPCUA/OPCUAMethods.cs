@@ -7,6 +7,5 @@ public enum OPCUAMethods
     StopPrinting,
     PrintStoredMessage,
     GetMessageVariableData,
-    SetMessageVariableData,
-    GetLines
+    SetMessageVariableData
 }
