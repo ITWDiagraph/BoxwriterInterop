@@ -46,7 +46,7 @@ public class StringResponse
         return $"{StartToken}{string.Join(TokenSeparator, data)}{EndToken}";
     }
 
-    private static string FormatResponse(string commandName, IEnumerable<string> responseData)
+    private static string FormatResponse(string commandName, IEnumerable<string?> responseData)
     {
         var data = Enumerable.Empty<string>()
             .Append(commandName)
