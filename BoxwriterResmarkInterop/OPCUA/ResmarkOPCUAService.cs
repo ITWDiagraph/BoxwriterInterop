@@ -1,4 +1,4 @@
-﻿namespace BoxwriterResmarkInterop.OPCUA;
+namespace BoxwriterResmarkInterop.OPCUA;
 
 using System.Net;
 
@@ -103,7 +103,7 @@ public class ResmarkOPCUAService : IOPCUAService
 
     private async Task<UaTcpSessionChannel> OpenChannel(string printerId, CancellationToken stoppingToken)
     {
-        var channel = GetSessionChannel(printerId);
+        var channel = await GetSessionChannel(printerId);
 
         if (channel.State != CommunicationState.Opened)
         {
@@ -132,13 +132,33 @@ public class ResmarkOPCUAService : IOPCUAService
         return $"opc.tcp://{printer.IpAddress}:16664";
     }
 
-    private UaTcpSessionChannel GetSessionChannel(string connectionName)
+    private async Task<UaTcpSessionChannel> GetSessionChannel(string connectionName)
     {
-        if (!_channelLookup.ContainsKey(connectionName))
+        if (_channelLookup.ContainsKey(connectionName))
         {
-            _channelLookup[connectionName] = new UaTcpSessionChannel(_applicationDescription, null,
-                new AnonymousIdentity(), GetAddressFromCache(connectionName), SecurityPolicyUris.None);
+            if (_channelLookup[connectionName].State == CommunicationState.Opened)
+            {
+                _logger.LogDebug("Channel for {Connection} exists and is open", connectionName);
+
+                return _channelLookup[connectionName];
+            }
+
+            _logger.LogDebug("Channel for {Connection} is not open, state: {State}", connectionName, _channelLookup[connectionName].State);
+
+            try
+            {
+                await _channelLookup[connectionName].AbortAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogDebug("Error while trying to close bad channel: {Exception}", e);
+            }
         }
+
+        _logger.LogDebug("Creating a new channel for {Connection}", connectionName);
+
+        _channelLookup[connectionName] = new UaTcpSessionChannel(_applicationDescription, null,
+            new AnonymousIdentity(), GetAddressFromCache(connectionName), SecurityPolicyUris.None);
 
         return _channelLookup[connectionName];
     }
