@@ -1,6 +1,4 @@
-﻿namespace BoxwriterResmarkInterop.Interfaces;
-
-using OPCUA;
+﻿namespace BoxwriterResmarkInterop.OPCUA;
 
 using Workstation.ServiceModel.Ua;
 

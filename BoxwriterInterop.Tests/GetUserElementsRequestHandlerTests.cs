@@ -1,5 +1,6 @@
 namespace BoxwriterResmarkInterop.Tests;
 
+using BoxwriterResmarkInterop.OPCUA;
 using Handlers;
 
 using Interfaces;
