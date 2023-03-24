@@ -40,6 +40,8 @@ public class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringRes
 
     private static IEnumerable<string> GetResponseData(CallMethodResult result)
     {
-        return result.OutputArguments?[1].Value as string[] ?? new[] { NoMessages };
+        var data = result.OutputArguments?[1].Value as IEnumerable<string>;
+
+        return data ?? Enumerable.Empty<string>();
     }
 }
