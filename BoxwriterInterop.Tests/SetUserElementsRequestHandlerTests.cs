@@ -1,10 +1,10 @@
 namespace BoxwriterResmarkInterop.Tests;
 
+using OPCUA;
+
 using Handlers;
 
 using Interfaces;
-
-using OPCUA;
 
 using Requests;
 
@@ -38,11 +38,8 @@ public class SetUserElementsRequestHandlerTests
         _mocker
             .GetMock<IOPCUAService>()
             .Setup(service => service.CallMethodAsync(
-                It.IsAny<string>(),
-                It.Is<string>(s => s == OPCUAMethods.SetMessageVariableData.ToString()),
-                It.IsAny<CancellationToken>(),
-                It.Is<int>(i => i == TaskNumber),
-                It.IsAny<string>()))
+                It.Is<OPCUARequest>(request => request.Method == OPCUAMethods.SetMessageVariableData),
+                It.IsAny<CancellationToken>()))
             .Returns(() =>
                 Task.FromResult(new CallMethodResult { OutputArguments = new[] { new Variant(0) } }));
 

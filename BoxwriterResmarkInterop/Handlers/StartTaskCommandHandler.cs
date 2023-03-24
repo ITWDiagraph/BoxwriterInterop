@@ -1,7 +1,5 @@
 namespace BoxwriterResmarkInterop.Handlers;
 
-using Exceptions;
-
 using Extensions;
 
 using Interfaces;
@@ -29,9 +27,14 @@ public class StartTaskCommandHandler : IRequestHandler<StartTaskRequest, StringR
     {
         var printerId = request.Data.ExtractPrinterId();
 
-        var response = await _opcuaService
-            .CallMethodAsync(printerId, OPCUAMethods.ResumePrinting.ToString(), cancellationToken, TaskNumber)
-            .ConfigureAwait(false);
+        var opcuaRequest = new OPCUARequest
+        {
+            PrinterId = printerId,
+            Method = OPCUAMethods.ResumePrinting,
+            TaskNumber = TaskNumber
+        };
+
+        var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken).ConfigureAwait(false);
 
         return new StringResponse(StartTask, printerId, GetResponseData(response));
     }
