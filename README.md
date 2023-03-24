@@ -4,19 +4,9 @@ A mapping between the Boxwriter API and the new OPCUA API allowing customers to 
 [![.NET](https://github.com/ITWDiagraph/BoxwriterInterop/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/ITWDiagraph/BoxwriterInterop/actions/workflows/dotnet.yml)
 
 ### Configuration
-Use the Add Line command to add printer names and addresses to the PrinterConnections.json file.
+Use the Add Line command to add printer names and addresses to the PrinterConnections.json file. Printer connections can also be manually added by editing the appsettings.json file.
 
-### Requests and Responses
-Requests are made on TCP port `2202` (unless otherwise specified) in the format:
-
-    {command, printerID, param1, param2, ...}
-
-Responses will typically be in the following format:
-
-    {command, printerID, result1, result2, ...}
-
-# Functionality
-## Locate
+### Locate
 Making a UDP broadcast Request on port 2200 with the data
 
     {Locate BoxWriter}
@@ -28,6 +18,16 @@ The application will respond with
 - **Address**: IP address of the machine
 - **Port**: Port it will respond on
 - **Machine Name**: Machine name
+
+# Functionality
+### Requests and Responses
+Requests are made on TCP port `2202` in the format:
+
+    {command, printerID, param1, param2, ...}
+
+Responses will typically be in the following format:
+
+    {command, printerID, result1, result2, ...}
 
 ## Get Tasks
 Determines the available tasks that the printer can start
