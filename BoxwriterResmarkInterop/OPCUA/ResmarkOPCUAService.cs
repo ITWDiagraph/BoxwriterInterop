@@ -37,45 +37,51 @@ public class ResmarkOPCUAService : IOPCUAService
         _printerConnections = configuration.Value;
     }
 
-    public async Task<CallMethodResult> CallMethodAsync(OPCUARequest request, CancellationToken stoppingToken) =>
-        await CallMethodAsync(request.PrinterId, request.Method, request.GetArgsAsVariant(), stoppingToken);
-
-    private async Task<CallMethodResult> CallMethodAsync(
-        string printerId,
-        OPCUAMethods method,
-        Variant[] inputArgs,
-        CancellationToken stoppingToken)
+    public async Task<CallMethodResult> CallMethodAsync(OPCUARequest request, CancellationToken stoppingToken)
     {
-        if (printerId is null)
+        if (request.PrinterId is null)
         {
             throw new PrinterNotFoundException("Printer Id was null");
         }
 
-        var channel = await OpenChannel(printerId, stoppingToken);
+        var channel = await OpenChannel(request.PrinterId, stoppingToken);
 
-        var response = await MakeCallRequest(method, channel, inputArgs, stoppingToken);
+        var callRequest = GenerateCallRequest(request.Method, request.GetArgsAsVariant());
 
-        var results = response.Results ??
-                      throw new OPCUACommunicationFailedException("Results of the call was null");
+        _logger.LogInformation("Making {Method} OPCUA call", request.Method);
 
-        var callMethodResult = results.First();
+        var callResponse = await MakeOPCUACall(channel, callRequest, stoppingToken);
 
-        if (callMethodResult is null || !StatusCode.IsGood(callMethodResult.StatusCode))
-        {
-            throw new OPCUACommunicationFailedException(
-                $"{method} OPCUA call failed to get a valid response: {GetStatusCodeMessage()} {callMethodResult?.StatusCode}");
-        }
+        CheckServiceResultStatusCode(request.Method, callResponse);
 
-        return callMethodResult;
-
-        string GetStatusCodeMessage() => StatusCodes.GetDefaultMessage(callMethodResult?.StatusCode ?? StatusCodes.BadRequestNotComplete);
+        return CheckCallResultStatusCode(request.Method, callResponse);
     }
 
-    private async Task<CallResponse> MakeCallRequest(
-        OPCUAMethods method,
-        UaTcpSessionChannel channel,
-        Variant[] inputArgs,
-        CancellationToken stoppingToken)
+    private static CallMethodResult CheckCallResultStatusCode(OPCUAMethods method, CallResponse? callResponse)
+    {
+        var result = callResponse?.Results?.FirstOrDefault() ??
+                     throw new OPCUACommunicationFailedException($"Results of call {method} was null");
+
+        if (!StatusCode.IsGood(result.StatusCode))
+        {
+            throw new OPCUACommunicationFailedException(
+                $"{method} OPCUA call failed to get a valid response: {StatusCodes.GetDefaultMessage(result.StatusCode)} {result.StatusCode}");
+        }
+
+        return result;
+    }
+
+    private static void CheckServiceResultStatusCode(OPCUAMethods method, IServiceResponse? callResponse)
+    {
+        var serviceResult = callResponse?.ResponseHeader?.ServiceResult ?? StatusCodes.BadCommunicationError;
+
+        if (!StatusCode.IsGood(serviceResult))
+        {
+            throw new OPCUACommunicationFailedException($"{method} OPCUA call failed");
+        }
+    }
+
+    public static CallRequest GenerateCallRequest(OPCUAMethods method, Variant[] inputArgs)
     {
         var request = new CallMethodRequest
         {
@@ -84,21 +90,14 @@ public class ResmarkOPCUAService : IOPCUAService
             InputArguments = inputArgs
         };
 
-        var callRequest = new CallRequest { MethodsToCall = new[] { request } };
-
-        _logger.LogInformation("Making {Method} OPCUA call", method);
-
-        var response = await channel.CallAsync(callRequest, stoppingToken);
-
-        var serviceResult = response.ResponseHeader?.ServiceResult ?? StatusCodes.BadCommunicationError;
-
-        if (!StatusCode.IsGood(serviceResult))
-        {
-            throw new OPCUACommunicationFailedException($"{method} OPCUA call failed");
-        }
-
-        return response;
+        return new CallRequest { MethodsToCall = new[] { request } };
     }
+
+    public static async Task<CallResponse> MakeOPCUACall(
+        UaTcpSessionChannel channel,
+        CallRequest callRequest,
+        CancellationToken stoppingToken) =>
+        await channel.CallAsync(callRequest, stoppingToken);
 
     private async Task<UaTcpSessionChannel> OpenChannel(string printerId, CancellationToken stoppingToken)
     {
