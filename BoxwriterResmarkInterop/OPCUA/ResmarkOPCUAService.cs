@@ -39,9 +39,9 @@ public class ResmarkOPCUAService : IOPCUAService
 
     public async Task<CallMethodResult> CallMethodAsync(OPCUARequest request, CancellationToken stoppingToken)
     {
-        if (request.PrinterId is null)
+        if (string.IsNullOrWhiteSpace(request.PrinterId))
         {
-            throw new PrinterNotFoundException("Printer Id was null");
+            throw new PrinterNotFoundException("Printer Id was empty");
         }
 
         var channel = await OpenChannel(request.PrinterId, stoppingToken);
@@ -52,33 +52,37 @@ public class ResmarkOPCUAService : IOPCUAService
 
         var callResponse = await MakeOPCUACall(channel, callRequest, stoppingToken);
 
-        CheckServiceResultStatusCode(request.Method, callResponse);
-
-        return CheckCallResultStatusCode(request.Method, callResponse);
-    }
-
-    private static CallMethodResult CheckCallResultStatusCode(OPCUAMethods method, CallResponse? callResponse)
-    {
-        var result = callResponse?.Results?.FirstOrDefault() ??
-                     throw new OPCUACommunicationFailedException($"Results of call {method} was null");
-
-        if (!StatusCode.IsGood(result.StatusCode))
+        try
         {
-            throw new OPCUACommunicationFailedException(
-                $"{method} OPCUA call failed to get a valid response: {StatusCodes.GetDefaultMessage(result.StatusCode)} {result.StatusCode}");
+            return ValidateAndReturnResult(callResponse);
         }
+        catch (OPCUACommunicationFailedException e)
+        {
+            _logger.LogError("OPCUA call {Method} failed with reason {Exception}", request.Method, e);
 
-        return result;
+            throw;
+        }
     }
 
-    private static void CheckServiceResultStatusCode(OPCUAMethods method, IServiceResponse? callResponse)
+    public static CallMethodResult ValidateAndReturnResult(CallResponse? callResponse)
     {
         var serviceResult = callResponse?.ResponseHeader?.ServiceResult ?? StatusCodes.BadCommunicationError;
 
         if (!StatusCode.IsGood(serviceResult))
         {
-            throw new OPCUACommunicationFailedException($"{method} OPCUA call failed");
+            throw new OPCUACommunicationFailedException("OPCUA call failed");
         }
+
+        var result = callResponse?.Results?.FirstOrDefault() ??
+                     throw new OPCUACommunicationFailedException("Results of call was null");
+
+        if (!StatusCode.IsGood(result.StatusCode))
+        {
+            throw new OPCUACommunicationFailedException(
+                $"OPCUA call failed to get a valid response: {StatusCodes.GetDefaultMessage(result.StatusCode)} {result.StatusCode}");
+        }
+
+        return result;
     }
 
     public static CallRequest GenerateCallRequest(OPCUAMethods method, Variant[] inputArgs)
