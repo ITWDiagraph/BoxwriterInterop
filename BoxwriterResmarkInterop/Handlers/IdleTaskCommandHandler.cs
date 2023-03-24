@@ -34,7 +34,7 @@ public class IdleTaskCommandHandler : IRequestHandler<IdleTaskRequest, StringRes
             TaskNumber = TaskNumber
         };
 
-        var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken).ConfigureAwait(false);
+        var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken);
 
         return new StringResponse(IdleTask, printerId, GetResponseData(response));
     }

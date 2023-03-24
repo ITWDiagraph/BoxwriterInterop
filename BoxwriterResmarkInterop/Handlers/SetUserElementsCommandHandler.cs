@@ -41,7 +41,7 @@ public class SetUserElementsCommandHandler : IRequestHandler<SetUserElementsRequ
             InputArgs = new object[] { serializer.Serialize(data) }
         };
 
-        _ = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken).ConfigureAwait(false);
+        _ = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken);
 
         return new StringResponse(GetUserElements, printerId, data.Count.ToString());
     }

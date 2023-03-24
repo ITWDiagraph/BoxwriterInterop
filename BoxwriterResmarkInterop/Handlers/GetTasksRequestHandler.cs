@@ -33,7 +33,7 @@ public class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringRes
             Method = OPCUAMethods.GetStoredMessageList
         };
 
-        var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken).ConfigureAwait(false);
+        var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken);
 
         return new StringResponse(GetTasks, printerId, GetResponseData(response));
     }

@@ -30,9 +30,9 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
     {
         var response = Encoding.ASCII.GetBytes(data);
 
-        await stream.WriteAsync(response, 0, response.Length, cancellationToken).ConfigureAwait(false);
+        await stream.WriteAsync(response, 0, response.Length, cancellationToken);
 
-        await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+        await stream.FlushAsync(cancellationToken);
     }
 
     protected override async Task ListenAsync(IPAddress address, CancellationToken stoppingToken)
@@ -52,8 +52,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
                     _logger.LogTrace("Waiting for connection on {IPAddress}", address);
 
                     using var tcpClient = await server
-                        .AcceptTcpClientAsync(stoppingToken)
-                        .ConfigureAwait(false);
+                        .AcceptTcpClientAsync(stoppingToken);
 
                     _logger.LogTrace("New connection made to {IPAddress} from {ClientAddress}", address, tcpClient.Client.RemoteEndPoint);
 
@@ -64,8 +63,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
                     do
                     {
                         var length = await stream
-                            .ReadAsync(buffer, 0, buffer.Length, stoppingToken)
-                            .ConfigureAwait(false);
+                            .ReadAsync(buffer, 0, buffer.Length, stoppingToken);
 
                         builder.Append(Encoding.ASCII.GetString(buffer, 0, length));
 
@@ -78,11 +76,9 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
 
                     var request = CreateRequest(data);
 
-                    var response = await _mediator.Send(request, stoppingToken)
-                        .ConfigureAwait(false);
+                    var response = await _mediator.Send(request, stoppingToken);
 
-                    await ProcessDataAsync(response.Data, stream, stoppingToken)
-                        .ConfigureAwait(false);
+                    await ProcessDataAsync(response.Data, stream, stoppingToken);
                 }
                 catch (Exception e)
                 {
