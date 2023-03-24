@@ -6,6 +6,8 @@ using Interfaces;
 
 using MediatR;
 
+using MoreLinq;
+
 using OPCUA;
 
 using Requests;
@@ -13,8 +15,6 @@ using Requests;
 using XSerializer;
 
 using static Constants;
-
-using MoreLinq;
 
 public class SetUserElementsCommandHandler : IRequestHandler<SetUserElementsRequest, StringResponse>
 {
@@ -27,14 +27,21 @@ public class SetUserElementsCommandHandler : IRequestHandler<SetUserElementsRequ
 
     public async Task<StringResponse> Handle(SetUserElementsRequest request, CancellationToken cancellationToken)
     {
-        var printerId = request.Data.ExtractPrinterId();
-
         var data = GetDataAsDictionary(request.Data);
 
         var serializer = new XmlSerializer<Dictionary<string, string>>();
 
-        _ = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.SetMessageVariableData.ToString(),
-            cancellationToken, TaskNumber, serializer.Serialize(data)).ConfigureAwait(false);
+        var printerId = request.Data.ExtractPrinterId();
+
+        var opcuaRequest = new OPCUARequest
+        {
+            PrinterId = printerId,
+            Method = OPCUAMethods.SetMessageVariableData,
+            TaskNumber = TaskNumber,
+            InputArgs = new object[] { serializer.Serialize(data) }
+        };
+
+        _ = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken).ConfigureAwait(false);
 
         return new StringResponse(GetUserElements, printerId, data.Count.ToString());
     }

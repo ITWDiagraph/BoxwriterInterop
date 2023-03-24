@@ -31,8 +31,14 @@ public class GetUserElementsRequestHandler : IRequestHandler<GetUserElementsRequ
     {
         var printerId = request.Data.ExtractPrinterId();
 
-        var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.GetMessageVariableData.ToString(),
-            cancellationToken, TaskNumber).ConfigureAwait(false);
+        var opcuaRequest = new OPCUARequest
+        {
+            PrinterId = printerId,
+            Method = OPCUAMethods.GetMessageVariableData,
+            TaskNumber = TaskNumber
+        };
+
+        var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken).ConfigureAwait(false);
 
         return new StringResponse(GetUserElements, printerId, GetResponseData(response));
     }

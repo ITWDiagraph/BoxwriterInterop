@@ -27,8 +27,13 @@ public class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringRes
     {
         var printerId = request.Data.ExtractPrinterId();
 
-        var response = await _opcuaService.CallMethodAsync(printerId, OPCUAMethods.GetStoredMessageList.ToString(),
-            cancellationToken).ConfigureAwait(false);
+        var opcuaRequest = new OPCUARequest
+        {
+            PrinterId = printerId,
+            Method = OPCUAMethods.GetStoredMessageList
+        };
+
+        var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken).ConfigureAwait(false);
 
         return new StringResponse(GetTasks, printerId, GetResponseData(response));
     }

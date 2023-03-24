@@ -24,10 +24,8 @@ public class GetUserElementsRequestHandlerTests
         _mocker
             .GetMock<IOPCUAService>()
             .Setup(service => service.CallMethodAsync(
-                It.IsAny<string>(),
-                It.Is<string>(s => s == OPCUAMethods.GetMessageVariableData.ToString()),
-                It.IsAny<CancellationToken>(),
-                It.Is<int>(i => i == TaskNumber)))
+                It.Is<OPCUARequest>(request => request.Method == OPCUAMethods.GetMessageVariableData),
+                It.IsAny<CancellationToken>()))
             .Returns(() =>
             {
                 var serializer = new XmlSerializer<Dictionary<string, string>>();
@@ -56,10 +54,8 @@ public class GetUserElementsRequestHandlerTests
         _mocker
             .GetMock<IOPCUAService>()
             .Setup(service => service.CallMethodAsync(
-                It.IsAny<string>(),
-                It.Is<string>(s => s == OPCUAMethods.GetMessageVariableData.ToString()),
-                It.IsAny<CancellationToken>(),
-                It.Is<int>(i => i == TaskNumber)))
+                It.Is<OPCUARequest>(request => request.Method == OPCUAMethods.GetMessageVariableData),
+                It.IsAny<CancellationToken>()))
             .Returns(() => Task.FromResult(new CallMethodResult
             {
                 OutputArguments = new[] { new Variant(0), new Variant(string.Empty) }

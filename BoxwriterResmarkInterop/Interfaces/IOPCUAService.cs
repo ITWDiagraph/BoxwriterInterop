@@ -1,25 +1,34 @@
 ﻿namespace BoxwriterResmarkInterop.Interfaces;
 
+using OPCUA;
 using Workstation.ServiceModel.Ua;
+
+public class OPCUARequest
+{
+    public string PrinterId { get; init; } = string.Empty;
+    public OPCUAMethods Method { get; init; }
+    public int? TaskNumber { get; init; }
+    public object[]? InputArgs { get; init; }
+
+    public Variant[] GetArgsAsVariant()
+    {
+        var args = new List<Variant>();
+
+        if (TaskNumber.HasValue)
+        {
+            args.Add(new Variant(TaskNumber.Value));
+        }
+
+        if (InputArgs != null)
+        {
+            args.AddRange(InputArgs.Select(arg => new Variant(arg)));
+        }
+
+        return args.ToArray();
+    }
+}
 
 public interface IOPCUAService
 {
-    Task<CallMethodResult> CallMethodAsync(
-        string printerId,
-        string method,
-        CancellationToken stoppingToken,
-        params string[] inputArgs);
-
-    Task<CallMethodResult> CallMethodAsync(
-        string printerId,
-        string method,
-        CancellationToken stoppingToken,
-        int taskNumber);
-
-    Task<CallMethodResult> CallMethodAsync(
-        string printerId,
-        string method,
-        CancellationToken stoppingToken,
-        int taskNumber,
-        string inputArgs);
+    Task<CallMethodResult> CallMethodAsync(OPCUARequest request, CancellationToken stoppingToken);
 }
