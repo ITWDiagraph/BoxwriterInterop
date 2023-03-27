@@ -73,7 +73,8 @@ public class ResmarkOpcuaServiceTests
     [InlineData(StatusCodes.BadConnectionClosed)]
     [InlineData(StatusCodes.BadInvalidState)]
     [InlineData(StatusCodes.BadNoCommunication)]
-    public void ValidateAndReturnResult_ThrowsOPCUACommunicationFailedException_WhenServiceResultIsBad(StatusCode badStatusCode)
+    // This needs to be uint because these are not real enum values
+    public void ValidateAndReturnResult_ThrowsOPCUACommunicationFailedException_WhenServiceResultIsBad(uint badStatusCode)
     {
         var callResponse = new CallResponse
         {
@@ -94,7 +95,8 @@ public class ResmarkOpcuaServiceTests
     [InlineData(StatusCodes.BadConnectionClosed)]
     [InlineData(StatusCodes.BadInvalidState)]
     [InlineData(StatusCodes.BadNoCommunication)]
-    public void ValidateAndReturnResult_ThrowsOPCUACommunicationFailedException_WhenStatusCodeIsBad(StatusCode badStatusCode)
+    // This needs to be uint because these are not real enum values
+    public void ValidateAndReturnResult_ThrowsOPCUACommunicationFailedException_WhenStatusCodeIsBad(uint badStatusCode)
     {
         var callResponse = new CallResponse
         {
