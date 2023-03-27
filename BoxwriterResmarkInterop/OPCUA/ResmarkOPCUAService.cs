@@ -46,9 +46,12 @@ public class ResmarkOPCUAService : IOPCUAService
 
         var channel = await OpenChannel(request.PrinterId, stoppingToken);
 
-        var callRequest = GenerateCallRequest(request.Method, request.GetArgsAsVariant());
+        var inputArgs = request.GetArgsAsVariant();
 
-        _logger.LogInformation("Making {Method} OPCUA call", request.Method);
+        var callRequest = GenerateCallRequest(request.Method, inputArgs);
+
+        _logger.LogInformation("Making {Method} OPCUA call{OptionalArgs}", request.Method,
+            inputArgs.Any() ? $" with args {string.Join(",", inputArgs)}" : string.Empty);
 
         var callResponse = await MakeOPCUACall(channel, callRequest, stoppingToken);
 
