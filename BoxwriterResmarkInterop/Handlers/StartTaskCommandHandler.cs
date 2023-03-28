@@ -34,7 +34,7 @@ public class StartTaskCommandHandler : IRequestHandler<StartTaskRequest, StringR
             TaskNumber = TaskNumber
         };
 
-        var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken).ConfigureAwait(false);
+        var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken);
 
         return new StringResponse(StartTask, printerId, GetResponseData(response));
     }

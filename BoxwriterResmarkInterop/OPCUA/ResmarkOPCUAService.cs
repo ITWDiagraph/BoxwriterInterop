@@ -38,8 +38,7 @@ public class ResmarkOPCUAService : IOPCUAService
     }
 
     public async Task<CallMethodResult> CallMethodAsync(OPCUARequest request, CancellationToken stoppingToken) =>
-        await CallMethodAsync(request.PrinterId, request.Method, request.GetArgsAsVariant(), stoppingToken)
-            .ConfigureAwait(false);
+        await CallMethodAsync(request.PrinterId, request.Method, request.GetArgsAsVariant(), stoppingToken);
 
     private async Task<CallMethodResult> CallMethodAsync(
         string printerId,
@@ -52,9 +51,9 @@ public class ResmarkOPCUAService : IOPCUAService
             throw new PrinterNotFoundException("Printer Id was null");
         }
 
-        var channel = await OpenChannel(printerId, stoppingToken).ConfigureAwait(false);
+        var channel = await OpenChannel(printerId, stoppingToken);
 
-        var response = await MakeCallRequest(method, channel, inputArgs, stoppingToken).ConfigureAwait(false);
+        var response = await MakeCallRequest(method, channel, inputArgs, stoppingToken);
 
         var results = response.Results ??
                       throw new OPCUACommunicationFailedException("Results of the call was null");
@@ -89,7 +88,7 @@ public class ResmarkOPCUAService : IOPCUAService
 
         _logger.LogInformation("Making {Method} OPCUA call", method);
 
-        var response = await channel.CallAsync(callRequest, stoppingToken).ConfigureAwait(false);
+        var response = await channel.CallAsync(callRequest, stoppingToken);
 
         var serviceResult = response.ResponseHeader?.ServiceResult ?? StatusCodes.BadCommunicationError;
 
@@ -111,7 +110,7 @@ public class ResmarkOPCUAService : IOPCUAService
 
             try
             {
-                await channel.OpenAsync(stoppingToken).ConfigureAwait(false);
+                await channel.OpenAsync(stoppingToken);
             }
             catch (Exception ex)
             {
