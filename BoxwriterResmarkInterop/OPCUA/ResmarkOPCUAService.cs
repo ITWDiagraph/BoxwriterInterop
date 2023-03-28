@@ -41,7 +41,7 @@ public class ResmarkOPCUAService : IOPCUAService
     {
         if (string.IsNullOrWhiteSpace(request.PrinterId))
         {
-            throw new PrinterNotFoundException("Printer Id was empty");
+            throw new PrinterNotFoundException("Printer Id contained no data");
         }
 
         var channel = await OpenChannel(request.PrinterId, stoppingToken);
