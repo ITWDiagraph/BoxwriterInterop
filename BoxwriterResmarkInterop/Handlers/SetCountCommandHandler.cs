@@ -32,8 +32,7 @@ public class SetCountCommandHandler : IRequestHandler<SetCountRequest, StringRes
         {
             PrinterId = printerId,
             Method = OPCUAMethods.SetMessageCount,
-            InputArgs = new object[] { startCount },
-            TaskNumber = TaskNumber
+            InputArgs = new object[] { startCount }
         };
 
         var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken);
