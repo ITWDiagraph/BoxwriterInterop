@@ -26,7 +26,7 @@ public class SetCountCommandHandler : IRequestHandler<SetCountRequest, StringRes
     public async Task<StringResponse> Handle(SetCountRequest request, CancellationToken cancellationToken)
     {
         var printerId = request.Data.ExtractPrinterId();
-        UInt64.TryParse(request.Data.ExtractAdditionalParameter(), out var startCount);
+        var startCount = Convert.ToUInt64(request.Data.ExtractAdditionalParameter());
 
         var opcuaRequest = new OPCUARequest
         {
