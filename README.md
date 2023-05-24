@@ -161,6 +161,17 @@ The application will respond with
 - **Data**: The variable data
 - **Result**: Result of the command (1 for success, 0 for failure)
 
+## Set Count
+Sets the starting count of the system
 
+Making a request with the data
 
+    {Set count, PrinterName, StartingCount}
+    
+The application will respond with
+    
+    {Set count, PrinterName, Result}
 
+- **PrinterName**: Name of the printer
+- **StartingCount**: Starting count of the system
+- **Result**: Result of the command (1 for success, 0 for failure)
