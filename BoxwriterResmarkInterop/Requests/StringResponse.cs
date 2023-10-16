@@ -1,7 +1,5 @@
+
 namespace BoxwriterResmarkInterop.Requests;
-
-using static Constants;
-
 public class StringResponse
 {
     public StringResponse(string commandName, string printerId, string responseData) =>
@@ -25,5 +23,5 @@ public class StringResponse
         FormatResponse(commandName, responseData.Prepend(printerId));
 
     private static string FormatResponse(string commandName, IEnumerable<string> responseData) =>
-        $"{StartToken}{string.Join(TokenSeparator, responseData.Prepend(commandName))}{EndToken}";
+        $"{Constants.StartToken}{string.Join(Constants.TokenSeparator, responseData.Prepend(commandName))}{Constants.EndToken}";
 }

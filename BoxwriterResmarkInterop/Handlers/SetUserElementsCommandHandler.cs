@@ -1,29 +1,20 @@
-namespace BoxwriterResmarkInterop.Handlers;
-
-using Extensions;
-
-using Interfaces;
+using BoxwriterResmarkInterop.Extensions;
+using BoxwriterResmarkInterop.Interfaces;
+using BoxwriterResmarkInterop.OPCUA;
+using BoxwriterResmarkInterop.Requests;
 
 using MediatR;
 
 using MoreLinq;
 
-using OPCUA;
-
-using Requests;
-
 using XSerializer;
 
-using static Constants;
-
+namespace BoxwriterResmarkInterop.Handlers;
 public class SetUserElementsCommandHandler : IRequestHandler<SetUserElementsRequest, StringResponse>
 {
     private readonly IOPCUAService _opcuaService;
 
-    public SetUserElementsCommandHandler(IOPCUAService opcuaService)
-    {
-        _opcuaService = opcuaService;
-    }
+    public SetUserElementsCommandHandler(IOPCUAService opcuaService) => _opcuaService = opcuaService;
 
     public async Task<StringResponse> Handle(SetUserElementsRequest request, CancellationToken cancellationToken)
     {
@@ -37,19 +28,19 @@ public class SetUserElementsCommandHandler : IRequestHandler<SetUserElementsRequ
         {
             PrinterId = printerId,
             Method = OPCUAMethods.SetMessageVariableData,
-            TaskNumber = TaskNumber,
+            TaskNumber = Constants.TaskNumber,
             InputArgs = new object[] { serializer.Serialize(data) }
         };
 
         _ = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken);
 
-        return new StringResponse(GetUserElements, printerId, data.Count.ToString());
+        return new StringResponse(Constants.GetUserElements, printerId, data.Count.ToString());
     }
 
     public static Dictionary<string, string> GetDataAsDictionary(string data) =>
         data
-            .Trim(StartToken, EndToken)
-            .Split(TokenSeparator)
+            .Trim(Constants.StartToken, Constants.EndToken)
+            .Split(Constants.TokenSeparator)
             .Skip(2)
             .Batch(2)
             .Select(t =>

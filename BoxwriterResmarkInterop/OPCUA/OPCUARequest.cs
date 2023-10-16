@@ -1,7 +1,7 @@
-﻿namespace BoxwriterResmarkInterop.OPCUA;
-
+﻿
 using Workstation.ServiceModel.Ua;
 
+namespace BoxwriterResmarkInterop.OPCUA;
 public class OPCUARequest
 {
     public string PrinterId { get; init; } = string.Empty;

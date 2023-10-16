@@ -1,27 +1,18 @@
-﻿namespace BoxwriterResmarkInterop.Handlers;
-
-using Extensions;
-
-using Interfaces;
+﻿using BoxwriterResmarkInterop.Extensions;
+using BoxwriterResmarkInterop.Interfaces;
+using BoxwriterResmarkInterop.OPCUA;
+using BoxwriterResmarkInterop.Requests;
 
 using MediatR;
 
-using OPCUA;
-
-using Requests;
-
 using Workstation.ServiceModel.Ua;
 
-using static Constants;
-
+namespace BoxwriterResmarkInterop.Handlers;
 public class SetCountCommandHandler : IRequestHandler<SetCountRequest, StringResponse>
 {
     private readonly IOPCUAService _opcuaService;
 
-    public SetCountCommandHandler(IOPCUAService opcuaService)
-    {
-        _opcuaService = opcuaService;
-    }
+    public SetCountCommandHandler(IOPCUAService opcuaService) => _opcuaService = opcuaService;
 
     public async Task<StringResponse> Handle(SetCountRequest request, CancellationToken cancellationToken)
     {
@@ -37,11 +28,8 @@ public class SetCountCommandHandler : IRequestHandler<SetCountRequest, StringRes
 
         var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken);
 
-        return new StringResponse(SetCount, printerId, GetResponseData(response));
+        return new StringResponse(Constants.SetCount, printerId, GetResponseData(response));
     }
 
-    private static bool GetResponseData(CallMethodResult result)
-    {
-        return StatusCode.IsGood(result.StatusCode);
-    }
+    private static bool GetResponseData(CallMethodResult result) => StatusCode.IsGood(result.StatusCode);
 }

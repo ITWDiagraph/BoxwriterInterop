@@ -1,21 +1,15 @@
-namespace BoxwriterResmarkInterop.Handlers;
-
-using Extensions;
-
-using Interfaces;
+using BoxwriterResmarkInterop.Extensions;
+using BoxwriterResmarkInterop.Interfaces;
+using BoxwriterResmarkInterop.OPCUA;
+using BoxwriterResmarkInterop.Requests;
 
 using MediatR;
-
-using OPCUA;
-
-using Requests;
 
 using Workstation.ServiceModel.Ua;
 
 using XSerializer;
 
-using static Constants;
-
+namespace BoxwriterResmarkInterop.Handlers;
 public class GetUserElementsRequestHandler : IRequestHandler<GetUserElementsRequest, StringResponse>
 {
     private readonly ILogger<GetUserElementsRequestHandler> _logger;
@@ -35,12 +29,12 @@ public class GetUserElementsRequestHandler : IRequestHandler<GetUserElementsRequ
         {
             PrinterId = printerId,
             Method = OPCUAMethods.GetMessageVariableData,
-            TaskNumber = TaskNumber
+            TaskNumber = Constants.TaskNumber
         };
 
         var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken);
 
-        return new StringResponse(GetUserElements, printerId, GetResponseData(response));
+        return new StringResponse(Constants.GetUserElements, printerId, GetResponseData(response));
     }
 
     private IEnumerable<string> GetResponseData(CallMethodResult result)

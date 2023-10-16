@@ -1,27 +1,18 @@
-﻿namespace BoxwriterResmarkInterop.Handlers;
-
-using Extensions;
-
-using Interfaces;
+﻿using BoxwriterResmarkInterop.Extensions;
+using BoxwriterResmarkInterop.Interfaces;
+using BoxwriterResmarkInterop.OPCUA;
+using BoxwriterResmarkInterop.Requests;
 
 using MediatR;
 
-using OPCUA;
-
-using Requests;
-
 using Workstation.ServiceModel.Ua;
 
-using static Constants;
-
+namespace BoxwriterResmarkInterop.Handlers;
 public class IdleTaskCommandHandler : IRequestHandler<IdleTaskRequest, StringResponse>
 {
     private readonly IOPCUAService _opcuaService;
 
-    public IdleTaskCommandHandler(IOPCUAService opcuaService)
-    {
-        _opcuaService = opcuaService;
-    }
+    public IdleTaskCommandHandler(IOPCUAService opcuaService) => _opcuaService = opcuaService;
 
     public async Task<StringResponse> Handle(IdleTaskRequest request, CancellationToken cancellationToken)
     {
@@ -31,12 +22,12 @@ public class IdleTaskCommandHandler : IRequestHandler<IdleTaskRequest, StringRes
         {
             PrinterId = printerId,
             Method = OPCUAMethods.StopPrinting,
-            TaskNumber = TaskNumber
+            TaskNumber = Constants.TaskNumber
         };
 
         var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken);
 
-        return new StringResponse(IdleTask, printerId, GetResponseData(response));
+        return new StringResponse(Constants.IdleTask, printerId, GetResponseData(response));
     }
 
     private static bool GetResponseData(CallMethodResult result) => StatusCode.IsGood(result.StatusCode);

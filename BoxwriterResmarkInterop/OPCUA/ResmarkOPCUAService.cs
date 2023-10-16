@@ -1,18 +1,15 @@
-namespace BoxwriterResmarkInterop.OPCUA;
-
 using System.Net;
 
-using Configuration;
-
-using Exceptions;
-
-using Interfaces;
+using BoxwriterResmarkInterop.Configuration;
+using BoxwriterResmarkInterop.Exceptions;
+using BoxwriterResmarkInterop.Interfaces;
 
 using Microsoft.Extensions.Options;
 
 using Workstation.ServiceModel.Ua;
 using Workstation.ServiceModel.Ua.Channels;
 
+namespace BoxwriterResmarkInterop.OPCUA;
 public class ResmarkOPCUAService : IOPCUAService
 {
     private const string ApplicationName = "BoxwriterResmarkInterop";
@@ -79,13 +76,10 @@ public class ResmarkOPCUAService : IOPCUAService
         var result = callResponse?.Results?.FirstOrDefault() ??
                      throw new OPCUACommunicationFailedException("Results of call was null");
 
-        if (!StatusCode.IsGood(result.StatusCode))
-        {
-            throw new OPCUACommunicationFailedException(
+        return StatusCode.IsGood(result.StatusCode)
+            ? result
+            : throw new OPCUACommunicationFailedException(
                 $"OPCUA call failed to get a valid response: {StatusCodes.GetDefaultMessage(result.StatusCode)} {result.StatusCode}");
-        }
-
-        return result;
     }
 
     public static CallRequest GenerateCallRequest(OPCUAMethods method, Variant[] inputArgs)

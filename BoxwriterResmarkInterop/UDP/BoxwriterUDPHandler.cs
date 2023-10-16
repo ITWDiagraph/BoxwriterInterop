@@ -1,19 +1,15 @@
-﻿namespace BoxwriterResmarkInterop;
-
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-using Interfaces;
+using BoxwriterResmarkInterop.Interfaces;
 
+namespace BoxwriterResmarkInterop;
 public class BoxwriterUDPHandler : IUdpDataHandler
 {
     private readonly ILogger<BoxwriterUDPHandler> _logger;
 
-    public BoxwriterUDPHandler(ILogger<BoxwriterUDPHandler> logger)
-    {
-        _logger = logger;
-    }
+    public BoxwriterUDPHandler(ILogger<BoxwriterUDPHandler> logger) => _logger = logger;
 
     public async Task ProcessDataAsync(UdpReceiveResult data, IPAddress ipAddress)
     {

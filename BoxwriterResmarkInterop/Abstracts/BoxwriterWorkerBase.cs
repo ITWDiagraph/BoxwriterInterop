@@ -1,7 +1,7 @@
-﻿namespace BoxwriterResmarkInterop.Abstracts;
-
+﻿
 using System.Net;
 
+namespace BoxwriterResmarkInterop.Abstracts;
 public abstract class BoxwriterWorkerBase : BackgroundService
 {
     ///<inheritdoc />

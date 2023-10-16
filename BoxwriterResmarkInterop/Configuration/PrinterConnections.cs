@@ -1,11 +1,6 @@
-namespace BoxwriterResmarkInterop.Configuration;
-
 using System.Text.Json;
 
-using Microsoft.Extensions.Options;
-
-using static Constants;
-
+namespace BoxwriterResmarkInterop.Configuration;
 public class PrinterConnections
 {
     public List<PrinterConnectionInfo> Printers { get; set; } = new List<PrinterConnectionInfo>();

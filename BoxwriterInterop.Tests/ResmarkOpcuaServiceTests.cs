@@ -1,10 +1,10 @@
-﻿namespace BoxwriterResmarkInterop.Tests;
+﻿
+using BoxwriterResmarkInterop.Exceptions;
+using BoxwriterResmarkInterop.OPCUA;
 
-using Exceptions;
-
-using OPCUA;
 using Workstation.ServiceModel.Ua;
 
+namespace BoxwriterResmarkInterop.Tests;
 public class ResmarkOpcuaServiceTests
 {
     private readonly AutoMocker _mocker = new();
