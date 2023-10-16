@@ -34,7 +34,7 @@ public class SetUserElementsCommandHandler : IRequestHandler<SetUserElementsRequ
 
         _ = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken);
 
-        return new StringResponse(Constants.GetUserElements, printerId, data.Count.ToString());
+        return new StringResponse(Constants.SetUserElements, printerId, data.Count.ToString());
     }
 
     public static Dictionary<string, string> GetDataAsDictionary(string data) =>
