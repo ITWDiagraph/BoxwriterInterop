@@ -1,22 +1,17 @@
-namespace BoxwriterResmarkInterop.Tests;
-
-using OPCUA;
-
-using Handlers;
-
-using Interfaces;
-
-using Requests;
+using BoxwriterResmarkInterop.Handlers;
+using BoxwriterResmarkInterop.Interfaces;
+using BoxwriterResmarkInterop.OPCUA;
+using BoxwriterResmarkInterop.Requests;
 
 using Workstation.ServiceModel.Ua;
 
+namespace BoxwriterResmarkInterop.Tests;
 public class SetUserElementsRequestHandlerTests
 {
     private const string ValidRequest =
         "{Set user elements, 0000, Test Prompt 1, Test Value 1, Test Prompt 2, Test Value 2}";
 
     private const string InvalidMissingPairRequest = "{Set user elements, 0000, Test Prompt 1, Test Value 1, Test Prompt 2}";
-    private const int TaskNumber = 1;
     private readonly AutoMocker _mocker = new();
 
     [Fact]
@@ -47,7 +42,7 @@ public class SetUserElementsRequestHandlerTests
 
         var response = await handler.Handle(new SetUserElementsRequest(ValidRequest), CancellationToken.None);
 
-        Assert.Equal("{Get user elements, 0000, 2}", response.Data);
+        Assert.Equal("{Set user elements, 0000, 2}", response.Data);
     }
 
     [Fact]

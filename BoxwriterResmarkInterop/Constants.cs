@@ -1,6 +1,6 @@
 namespace BoxwriterResmarkInterop;
 
-public class Constants
+public static class Constants
 {
     public const char StartToken = '{';
     public const char EndToken = '}';

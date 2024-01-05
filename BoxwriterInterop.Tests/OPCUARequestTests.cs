@@ -1,9 +1,8 @@
-﻿namespace BoxwriterResmarkInterop.Tests;
-
-using OPCUA;
+﻿using BoxwriterResmarkInterop.OPCUA;
 
 using Workstation.ServiceModel.Ua;
 
+namespace BoxwriterResmarkInterop.Tests;
 public class OPCUARequestTests
 {
     [Fact]

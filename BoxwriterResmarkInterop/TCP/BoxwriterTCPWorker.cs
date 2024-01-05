@@ -1,19 +1,14 @@
-namespace BoxwriterResmarkInterop.TCP;
-
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-using Abstracts;
-
-using Extensions;
+using BoxwriterResmarkInterop.Abstracts;
+using BoxwriterResmarkInterop.Extensions;
+using BoxwriterResmarkInterop.Requests;
 
 using MediatR;
 
-using Requests;
-
-using static Constants;
-
+namespace BoxwriterResmarkInterop.TCP;
 public class BoxwriterTCPWorker : BoxwriterWorkerBase
 {
     private const int Port = 2202;
@@ -26,11 +21,11 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
         _mediator = mediator;
     }
 
-    public async Task ProcessDataAsync(string data, NetworkStream stream, CancellationToken cancellationToken = default)
+    public static async Task ProcessDataAsync(string data, NetworkStream stream, CancellationToken cancellationToken = default)
     {
         var response = Encoding.ASCII.GetBytes(data);
 
-        await stream.WriteAsync(response, 0, response.Length, cancellationToken);
+        await stream.WriteAsync(response, cancellationToken);
 
         await stream.FlushAsync(cancellationToken);
     }
@@ -62,8 +57,7 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
 
                     do
                     {
-                        var length = await stream
-                            .ReadAsync(buffer, 0, buffer.Length, stoppingToken);
+                        var length = await stream.ReadAsync(buffer, stoppingToken);
 
                         builder.Append(Encoding.ASCII.GetString(buffer, 0, length));
 
@@ -102,16 +96,16 @@ public class BoxwriterTCPWorker : BoxwriterWorkerBase
 
         return commandName switch
         {
-            GetTasks => new GetTasksRequest(data),
-            StartTask => new StartTaskRequest(data),
-            ResumeTask => new ResumeTaskRequest(data),
-            LoadTask => new LoadTaskRequest(data),
-            IdleTask => new IdleTaskRequest(data),
-            GetUserElements => new GetUserElementsRequest(data),
-            SetUserElements => new SetUserElementsRequest(data),
-            AddLine => new AddLineRequest(data),
-            GetLines => new GetLinesRequest(data),
-            SetCount => new SetCountRequest(data),
+            Constants.GetTasks => new GetTasksRequest(data),
+            Constants.StartTask => new StartTaskRequest(data),
+            Constants.ResumeTask => new ResumeTaskRequest(data),
+            Constants.LoadTask => new LoadTaskRequest(data),
+            Constants.IdleTask => new IdleTaskRequest(data),
+            Constants.GetUserElements => new GetUserElementsRequest(data),
+            Constants.SetUserElements => new SetUserElementsRequest(data),
+            Constants.AddLine => new AddLineRequest(data),
+            Constants.GetLines => new GetLinesRequest(data),
+            Constants.SetCount => new SetCountRequest(data),
             _ => throw new InvalidDataException("Data response was malformed.")
         };
     }

@@ -3,10 +3,9 @@ using BoxwriterResmarkInterop.Interfaces;
 using BoxwriterResmarkInterop.OPCUA;
 using BoxwriterResmarkInterop.Requests;
 
-namespace BoxwriterResmarkInterop.Tests;
-
 using Workstation.ServiceModel.Ua;
 
+namespace BoxwriterResmarkInterop.Tests;
 public class SetCountCommandHandlerTest
 {
     private const string ValidRequest = "{Set count, 0000, 5}";

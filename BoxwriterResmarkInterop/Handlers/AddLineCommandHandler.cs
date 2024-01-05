@@ -1,25 +1,17 @@
-﻿namespace BoxwriterResmarkInterop.Handlers;
-
-using Configuration;
-
-using Extensions;
+﻿using BoxwriterResmarkInterop.Configuration;
+using BoxwriterResmarkInterop.Extensions;
+using BoxwriterResmarkInterop.Requests;
 
 using MediatR;
 
 using Microsoft.Extensions.Options;
 
-using Requests;
-
-using static Constants;
-
+namespace BoxwriterResmarkInterop.Handlers;
 public class AddLineCommandHandler : IRequestHandler<AddLineRequest, StringResponse>
 {
     private readonly PrinterConnections _printerConnections;
 
-    public AddLineCommandHandler(IOptions<PrinterConnections> configuration)
-    {
-        _printerConnections = configuration.Value;
-    }
+    public AddLineCommandHandler(IOptions<PrinterConnections> configuration) => _printerConnections = configuration.Value;
 
     public async Task<StringResponse> Handle(AddLineRequest request, CancellationToken cancellationToken)
     {
@@ -43,6 +35,6 @@ public class AddLineCommandHandler : IRequestHandler<AddLineRequest, StringRespo
 
         await _printerConnections.SaveSettings();
 
-        return new StringResponse(AddLine, printerId, true);
+        return new StringResponse(Constants.AddLine, printerId, true);
     }
 }

@@ -1,27 +1,18 @@
-namespace BoxwriterResmarkInterop.Handlers;
-
-using Extensions;
-
-using Interfaces;
+using BoxwriterResmarkInterop.Extensions;
+using BoxwriterResmarkInterop.Interfaces;
+using BoxwriterResmarkInterop.OPCUA;
+using BoxwriterResmarkInterop.Requests;
 
 using MediatR;
 
-using OPCUA;
-
-using Requests;
-
 using Workstation.ServiceModel.Ua;
 
-using static Constants;
-
+namespace BoxwriterResmarkInterop.Handlers;
 public class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringResponse>
 {
     private readonly IOPCUAService _opcuaService;
 
-    public GetTasksRequestHandler(IOPCUAService opcuaService)
-    {
-        _opcuaService = opcuaService;
-    }
+    public GetTasksRequestHandler(IOPCUAService opcuaService) => _opcuaService = opcuaService;
 
     public async Task<StringResponse> Handle(GetTasksRequest request, CancellationToken cancellationToken)
     {
@@ -35,7 +26,7 @@ public class GetTasksRequestHandler : IRequestHandler<GetTasksRequest, StringRes
 
         var response = await _opcuaService.CallMethodAsync(opcuaRequest, cancellationToken);
 
-        return new StringResponse(GetTasks, printerId, GetResponseData(response));
+        return new StringResponse(Constants.GetTasks, printerId, GetResponseData(response));
     }
 
     private static IEnumerable<string> GetResponseData(CallMethodResult result)

@@ -1,12 +1,10 @@
-﻿namespace BoxwriterResmarkInterop.UDP;
-
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 
-using Abstracts;
+using BoxwriterResmarkInterop.Abstracts;
+using BoxwriterResmarkInterop.Interfaces;
 
-using Interfaces;
-
+namespace BoxwriterResmarkInterop.UDP;
 public class BoxwriterUDPWorker : BoxwriterWorkerBase
 {
     private const int Port = 2200;

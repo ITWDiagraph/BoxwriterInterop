@@ -1,21 +1,16 @@
-namespace BoxwriterResmarkInterop.Tests;
-
-using OPCUA;
-
-using Handlers;
-
-using Interfaces;
-
-using Requests;
+using BoxwriterResmarkInterop.Handlers;
+using BoxwriterResmarkInterop.Interfaces;
+using BoxwriterResmarkInterop.OPCUA;
+using BoxwriterResmarkInterop.Requests;
 
 using Workstation.ServiceModel.Ua;
 
 using XSerializer;
 
+namespace BoxwriterResmarkInterop.Tests;
 public class GetUserElementsRequestHandlerTests
 {
     private const string ValidRequest = "{Get user elements, 0000}";
-    private const int TaskNumber = 1;
     private readonly AutoMocker _mocker = new();
 
     [Fact]
