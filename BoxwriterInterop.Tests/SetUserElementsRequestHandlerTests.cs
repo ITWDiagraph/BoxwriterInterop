@@ -42,7 +42,7 @@ public class SetUserElementsRequestHandlerTests
 
         var response = await handler.Handle(new SetUserElementsRequest(ValidRequest), CancellationToken.None);
 
-        Assert.Equal("{Get user elements, 0000, 2}", response.Data);
+        Assert.Equal("{Set user elements, 0000, 2}", response.Data);
     }
 
     [Fact]
